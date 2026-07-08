@@ -29,11 +29,17 @@ toolbox (capillary condensation loops, spinodals) and is model-agnostic: any
 smooth R(x, p) — steady states of PDEs, reaction networks, neural-ODE
 equilibria.
 
+## Shipped
+
+- Moore–Spence fold tracking (`refine_fold`, `track_fold`) — sharpen a
+  detected turning point to Newton precision, then continue the fold itself
+  in a second parameter (arclength on the augmented system, so cusps pass).
+- Generic bordered constraints (`bordered_newton`) — one dense Newton, k
+  border rows: arclength, mass constraints, phase conditions.
+
 ## Roadmap
 
-Moore–Spence fold tracking (continue a fold itself in a second parameter);
-generic bordered constraints (one Newton, k border rows: arclength, mass,
-phase conditions); matrix-free bordered solves (jvp + GMRES) for large N;
+Matrix-free bordered solves (jvp + GMRES) for large N;
 **differentiable continuation** — gradients of fold locations with respect to
 model parameters, enabling optimisation and learning directly against
 bifurcation diagrams; branch switching.

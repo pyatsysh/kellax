@@ -1,12 +1,17 @@
 [project]
 name = "kellax"
-version = "0.1.0"
-description = "Pseudo-arclength (Keller) continuation and bordered Newton solvers in JAX: trace solution branches of R(x, p) = 0 through folds with autodiff Jacobians; fold detection; roadmap to Moore-Spence fold tracking and differentiable continuation."
+version = "0.2.0"
+description = "Pseudo-arclength (Keller) continuation and bordered Newton solvers in JAX: trace solution branches of R(x, p) = 0 through folds with autodiff Jacobians; Moore-Spence fold refinement and two-parameter fold tracking; generic bordered constraints; roadmap to differentiable continuation."
 requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [{name = "Peter Yatsyshin"}]
 dependencies = [
     "numpy>=2.0",
     "jax>=0.4",
 ]
+
+[project.urls]
+Repository = "https://github.com/classical-DFT-lab/kellax"
 
 [build-system]
 requires = ["setuptools>=68"]
