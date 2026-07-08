@@ -1,0 +1,25 @@
+# python / build
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# environment
+.venv/
+venv/
+
+# generated outputs (figures, reports, dumps)
+scripts/out/
+*.hdf5
+*.mat
+
+# os / editor
+.DS_Store
+
+# obsidian per-user config
+notes/.obsidian/
+.obsidian/
+
+# research notes live in the Dropbox Obsidian vault (symlinked)
+/notes
