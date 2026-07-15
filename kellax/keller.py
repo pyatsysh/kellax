@@ -15,7 +15,8 @@ dR/dp are automatic (jax.jacfwd) — supply only the residual.
 
 Fold locations are detected by sign changes of the tangent's p-component and
 reported in Branch.turning_points. Dense linear algebra (suited to N up to a
-few thousand); a matrix-free bordered solve is the planned scale-up path.
+few thousand); for larger fields (2D/3D) use ``kellax.mf_arclength_continuation``
+(matrixfree.py), the GMRES-on-JVP twin of this engine.
 """
 from __future__ import annotations
 
