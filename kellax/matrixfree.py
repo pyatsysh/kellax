@@ -162,10 +162,12 @@ def arclength_continuation(residual: Callable, x0, p0: float, ds: float = 0.3,
         res = jnp.inf
         for _ in range(newton_max):
             x, p, res, t, ok, trust = step(x, p, tx, tp, xprev, pprev, dstep, trust)
-            if (not bool(jnp.isfinite(res))) or (not bool(ok)):
+            if not bool(jnp.isfinite(res)):
                 return x, p, float(res), False
-            if float(res) < newton_tol:
-                break
+            if float(res) < newton_tol:      # converged: accept even if the line
+                break                        # search could not improve an already-
+            if not bool(ok):                 # exact point; only a stall *before*
+                return x, p, float(res), False   # convergence is a real failure
         return x, p, float(res), bool(np.isfinite(float(res)))
 
     # initial point: pin p to p0 (tx=0, tp=1, ds=0) and Newton R -> 0

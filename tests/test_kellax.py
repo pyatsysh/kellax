@@ -11,7 +11,7 @@ import jax.numpy as jnp
 jax.config.update("jax_enable_x64", True)
 
 from kellax import (arclength_continuation, bordered_newton, newton,  # noqa: E402
-                    refine_fold, track_fold)
+                    refine_fold, track_fold, mf_arclength_continuation)
 
 
 def test_newton_scalar_root():
@@ -155,6 +155,59 @@ def test_bordered_newton_moore_spence():
     assert abs(float(aux[0]) - pr) < 1e-12           # same fold, two formulations
     assert abs(float(xv[0] - xr[0])) < 1e-12
     assert abs(float(xv[1] - vr[0])) < 1e-12
+
+
+def _bratu(N):
+    """Discretised -u'' = lambda e^u on N interior points, with a spectral
+    (DST) preconditioner ~ (D2)^{-1} for the matrix-free solve."""
+    h = 1.0 / (N + 1)
+    off = jnp.ones(N - 1)
+    D2 = (jnp.diag(-2.0 * jnp.ones(N)) + jnp.diag(off, 1) + jnp.diag(off, -1)) / h ** 2
+    R = lambda u, lam: D2 @ u + lam * jnp.exp(u)
+    lap_eig = jnp.asarray((2.0 * np.cos(np.arange(1, N + 1) * np.pi / (N + 1)) - 2.0) / h ** 2)
+
+    def dst1(v):
+        v = jnp.asarray(v)
+        ext = jnp.concatenate([jnp.zeros(1), v, jnp.zeros(1), -v[::-1]])
+        return -jnp.fft.rfft(ext).imag[1:N + 1]
+
+    precond = lambda v: dst1(dst1(v) * (2.0 / (N + 1)) / lap_eig)
+    return R, precond
+
+
+def test_mf_cubic_fold():
+    """Matrix-free engine on the scalar cubic: same S-curve, same two folds as
+    the dense engine, every accepted point satisfying the residual."""
+    R = lambda x, p: jnp.array([x[0] ** 3 - x[0] + p])
+    br = mf_arclength_continuation(R, jnp.array([-1.2]), p0=0.7, ds=0.05, ds_max=0.1,
+                                   n_steps=300, p_min=-1.2, p_max=1.2, direction=-1.0)
+    assert len(br.turning_points) >= 2, br.turning_points
+    p_fold = 2.0 / (3.0 * np.sqrt(3.0))
+    folds = sorted(br.p[br.turning_points[:2]])
+    assert abs(abs(folds[0]) - p_fold) < 2e-2, folds
+    assert abs(abs(folds[1]) - p_fold) < 2e-2, folds
+    worst = max(abs(float(x ** 3 - x + p)) for x, p in zip(br.x[:, 0], br.p))
+    assert worst < 1e-6, worst
+
+
+def test_mf_matches_dense_bratu():
+    """Matrix-free == dense on a discretised BVP. With a spectral preconditioner
+    the matrix-free trace finds the same Bratu fold as the dense engine, and
+    Moore-Spence refinement of both agrees to Newton precision."""
+    N = 80
+    R, precond = _bratu(N)
+    kw = dict(p0=0.3, ds=0.05, ds_max=0.2, n_steps=400, p_min=0.25, p_max=6.0,
+              direction=1.0)
+    bd = arclength_continuation(R, jnp.zeros(N), **kw)
+    bm = mf_arclength_continuation(R, jnp.zeros(N), precond=precond,
+                                   gmres_restart=60, gmres_maxiter=60, **kw)
+    assert bd.turning_points and bm.turning_points
+    _, lam_d, _, rd = refine_fold(R, jnp.array(bd.x[bd.turning_points[0]]),
+                                  float(bd.p[bd.turning_points[0]]))
+    _, lam_m, _, rm = refine_fold(R, jnp.array(bm.x[bm.turning_points[0]]),
+                                  float(bm.p[bm.turning_points[0]]))
+    assert float(rd) < 1e-8 and float(rm) < 1e-8, (rd, rm)
+    assert abs(lam_d - lam_m) < 1e-6, (lam_d, lam_m)   # same discrete fold, two engines
 
 
 if __name__ == "__main__":

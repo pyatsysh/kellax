@@ -1,5 +1,7 @@
 # kellax — pseudo-arclength continuation in JAX
 
+[![CI](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml/badge.svg)](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml)
+
 Trace the solution branch of **R(x, p) = 0** through folds. Supply a residual;
 Jacobians (dR/dx and dR/dp) are automatic; the bordered Keller system stays
 non-singular where naive parameter stepping jumps or stalls; turning points

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use kellax, please cite it using the metadata below."
+title: "kellax: autodiff-native pseudo-arclength continuation in JAX"
+abstract: >-
+  A JAX library for Keller pseudo-arclength numerical continuation of nonlinear
+  systems R(x, p) = 0 through folds, with automatic-differentiation Jacobians,
+  JIT/GPU execution, a matrix-free GMRES-on-JVP engine, and Moore-Spence fold
+  refinement and two-parameter fold tracking.
+type: software
+authors:
+  - family-names: Yatsyshin
+    given-names: Peter
+    # orcid: "https://orcid.org/0000-0000-0000-0000"  # TODO: add ORCID
+version: "0.3.0"
+license: Apache-2.0
+repository-code: "https://github.com/pyatsysh/kellax"
+url: "https://github.com/pyatsysh/kellax"
+keywords:
+  - numerical continuation
+  - bifurcation analysis
+  - pseudo-arclength
+  - fold tracking
+  - automatic differentiation
+  - JAX
+# doi: "10.5281/zenodo.XXXXXXX"  # TODO: add after minting the Zenodo release DOI

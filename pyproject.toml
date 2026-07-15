@@ -1,6 +1,6 @@
 [project]
 name = "kellax"
-version = "0.2.0"
+dynamic = ["version"]
 description = "Pseudo-arclength (Keller) continuation and bordered Newton solvers in JAX: trace solution branches of R(x, p) = 0 through folds with autodiff Jacobians; Moore-Spence fold refinement and two-parameter fold tracking; generic bordered constraints; roadmap to differentiable continuation."
 requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
@@ -10,12 +10,20 @@ dependencies = [
     "jax>=0.4",
 ]
 
+[project.optional-dependencies]
+examples = ["matplotlib>=3.7"]          # figures for examples/ and book/
+test = ["pytest>=7"]
+dev = ["matplotlib>=3.7", "pytest>=7"]
+
 [project.urls]
-Repository = "https://github.com/classical-DFT-lab/kellax"
+Repository = "https://github.com/pyatsysh/kellax"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "kellax.__version__"}   # single source of truth: kellax/__init__.py
 
 [tool.setuptools.packages.find]
 include = ["kellax*"]
