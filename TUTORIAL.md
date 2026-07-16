@@ -48,6 +48,12 @@ parameter values), `.tan_p` (the tangent's p-component; sign flips mark folds),
 | `track_fold(R2, x0, p0, q0, …)` | continue a fold in a second parameter `q` | `FoldBranch` |
 | `bordered_newton(R, constraints, x0, aux0)` | generic (N+k) bordered Newton | `(x, aux, res)` |
 | `newton(R, x0, p)` | plain dense Newton at fixed p (branch seeding) | `(x, res)` |
+| `analyze_branch(R, br, sign=)` | spectrum along the branch; classify folds / branch points / Hopf candidates | `BranchAnalysis` |
+| `refine_hopf(R, x0, p0)` | pin a Hopf point exactly (3N+2 augmented system) | `(x, p, omega, q, res)` |
+| `deflated_newton(R, x0, p, known)` / `deflated_search(…)` | converge to a solution NOT already known / collect all of them | `(x, res)` / `[x…]` |
+| `branch_off(R, x_bp, p_bp)` | jump onto the bifurcating branch at a simple branch point | `[(x, p)…]` seeds |
+| `bifurcation_diagram(R, x0, p0, max_depth=)` | trace → classify → switch → recurse (equilibria) | `[DiagramBranch…]` |
+| `fold_sensitivity(R3, x0, p0, theta0)` | fold location AND its exact gradient d p*/d theta | `(x, p, v, dp, res)` |
 
 Key optional arguments to the continuation drivers: `ds` (initial step),
 `ds_min`/`ds_max` (adaptive bounds), `n_steps`, `p_min`/`p_max` (stop when p

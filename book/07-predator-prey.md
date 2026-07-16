@@ -45,11 +45,14 @@ folding twice.
   except that $x$ is now $(x, y)$ and stability is the sign of the leading
   eigenvalue of a $2\times2$ Jacobian. `arclength_continuation` and `refine_fold`
   do not care.
-- **What kellax leaves for later.** A **Hopf** bifurcation also sits on this branch
-  (the coexistence state can lose stability to a limit cycle). kellax detects folds,
-  not Hopf points, so it appears here only as a change of stability, not a marked
-  event — periodic-orbit continuation is a roadmap item, not a v1 feature. Being
-  honest about that boundary is part of the point.
+- **Every crossing here is a fold — verified, not assumed.** `analyze_branch`
+  computes the spectrum along the branch and classifies each stability change;
+  on this branch, in this window of $d$, both changes are the real crossings of
+  the two folds, and no complex pair crosses at all. (An earlier draft asserted
+  a Hopf on this branch; the spectrum says otherwise, so the claim went.) Hopf
+  detection and Newton-exact refinement are in the library — `refine_hopf` is
+  validated on the Hopf normal form and on the Brusselator at $b = 1+a^2$ — and
+  periodic-orbit continuation from a Hopf point remains the roadmap item.
 
 Background: Kuznetsov, *Elements of Applied Bifurcation Theory* (the model is
 MatCont's EcoMod tutorial).

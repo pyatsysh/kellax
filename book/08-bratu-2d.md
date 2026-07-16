@@ -47,6 +47,5 @@ solution *at the fold* — a smooth thermal bump, $\lVert u\rVert_\infty \approx
   stumbles on this 2-D residual at the initial step — a known rough edge; the 1-D
   matrix-free path in chapter 4 is solid.)*
 
-This is the last written chapter. The book grows with the example suite — a
-predator–prey Hopf, branch-switching at pitchforks, and differentiable
-continuation come next (see the roadmap in the [README](../README.md)).
+Next: [differentiable continuation](09-differentiable.md) — the gradient of
+the folds this book has been locating.
