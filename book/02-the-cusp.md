@@ -23,9 +23,9 @@ Moore–Spence augmented system* in $q$ — so every point it returns is a conve
 fold, accurate to Newton tolerance, not to step size.
 
 ```python
-R2 = lambda x, p, q: jnp.array([x[0]**3 - q*x[0] + p])
-up   = track_fold(R2, jnp.array([+0.408]), p0=+0.136, q0=0.5, q_max=2.5, direction=+1.0)
-thru = track_fold(R2, jnp.array([+0.408]), p0=+0.136, q0=0.5, q_max=2.5, direction=-1.0)
+R2 = lambda x, p, q: np.array([x[0]**3 - q*x[0] + p])
+up   = track_fold(R2, np.array([+0.408]), p0 = +0.136, q0 = 0.5, q_max = 2.5, direction = +1.0)
+thru = track_fold(R2, np.array([+0.408]), p0 = +0.136, q0 = 0.5, q_max = 2.5, direction = -1.0)
 ```
 
 ## The nice part: one continuation, both arms
@@ -60,6 +60,7 @@ pair visibly widening as $q$ grows.
   $\partial R/\partial x\, v$; continuing it needs derivatives of *that*, supplied by
   `jax.jacfwd` with no hand-coded Hessian.
 
-Background: the vault note *Folds & Moore–Spence*.
+Background: Govaerts (2000) on Moore–Spence systems; Kuznetsov, *Elements of
+Applied Bifurcation Theory*.
 
 Next: [Bratu–Gelfand](03-bratu.md) — the same tools on a discretised PDE.

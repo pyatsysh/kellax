@@ -25,11 +25,11 @@ import jax; jax.config.update("jax_enable_x64", True)
 
 ```python
 import jax; jax.config.update("jax_enable_x64", True)
-import jax.numpy as jnp
+import jax.numpy as np
 from kellax import arclength_continuation
 
-R = lambda x, p: jnp.array([x[0]**3 - x[0] + p])          # the cubic S-curve
-br = arclength_continuation(R, x0=jnp.array([-1.2]), p0=0.7, ds=0.05, direction=-1.0)
+R = lambda x, p: np.array([x[0]**3 - x[0] + p])           # the cubic S-curve
+br = arclength_continuation(R, x0 = np.array([-1.2]), p0 = 0.7, ds = 0.05, direction = -1.0)
 
 print(br.p[br.turning_points])        # parameter values at the folds: ~ [-0.385, +0.385]
 ```
@@ -62,7 +62,7 @@ the Moore–Spence augmented system to locate it exactly:
 ```python
 from kellax import refine_fold
 i = br.turning_points[0]
-x, p, v, res = refine_fold(R, jnp.array(br.x[i]), float(br.p[i]))
+x, p, v, res = refine_fold(R, np.array(br.x[i]), float(br.p[i]))
 #   p -> -0.3849001795 (exact -2/(3*sqrt 3)), residual ~ 1e-16
 ```
 
@@ -72,8 +72,8 @@ A fold moves as a second parameter `q` changes. `track_fold` continues it:
 
 ```python
 from kellax import track_fold
-R2 = lambda x, p, q: jnp.array([x[0]**3 - q*x[0] + p])
-fb = track_fold(R2, jnp.array([0.6]), p0=0.4, q0=1.0, ds=0.1, q_min=0.02, q_max=2.5)
+R2 = lambda x, p, q: np.array([x[0]**3 - q*x[0] + p])
+fb = track_fold(R2, np.array([0.6]), p0 = 0.4, q0 = 1.0, ds = 0.1, q_min = 0.02, q_max = 2.5)
 #   fb.q, fb.p trace the fold curve p*(q); fb.x, fb.v the fold states and null vectors
 ```
 
@@ -89,7 +89,7 @@ solves every bordered system by preconditioned GMRES on Jacobian–vector produc
 
 ```python
 from kellax import mf_arclength_continuation
-br = mf_arclength_continuation(R, x0, p0, precond=Minv, p_stop=target_p)
+br = mf_arclength_continuation(R, x0, p0, precond = Minv, p_stop = target_p)
 ```
 
 `precond` is a callable `Minv(v)` approximating the inverse of the state-block

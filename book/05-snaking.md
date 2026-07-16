@@ -25,10 +25,10 @@ pseudo-arclength continuation walks. You only have to get *onto* it, by seeding
 Newton with a localized envelope:
 
 ```python
-u0 = 1.5 / jnp.cosh(0.6*(x - L/2)) * jnp.cos(x - L/2)   # sech envelope of rolls
-u, _ = newton(R, u0, r0=-0.2, tol=1e-9)                 # converge to a localized state
-br = arclength_continuation(R, u, p0=-0.2, ds=0.02, ds_max=0.06,
-                            n_steps=700, p_min=-0.30, p_max=-0.10, direction=1.0)
+u0 = 1.5 / np.cosh(0.6*(x - L/2)) * np.cos(x - L/2)     # sech envelope of rolls
+u, _ = newton(R, u0, r0 = -0.2, tol = 1e-9)             # converge to a localized state
+br = arclength_continuation(R, u, p0 = -0.2, ds = 0.02, ds_max = 0.06,
+                            n_steps = 700, p_min = -0.30, p_max = -0.10, direction = 1.0)
 ```
 
 ```
@@ -68,7 +68,7 @@ where the Jacobian cannot be formed — the regime of
 - **This problem drove an engine fix.** Seeding the matrix-free corrector with an
   *already-converged* localized state used to be rejected (its line search cannot
   improve an exact point); the engine now accepts a seed that already meets
-  tolerance — see [Roadmap](../notes) / the `matrixfree` corrector.
+  tolerance — see the `matrixfree` corrector.
 
-Background: the vault notes *Matrix-free & Krylov solves* and *Pseudo-arclength
-continuation*.
+Background: Burke & Knobloch on homoclinic snaking; Knoll & Keyes (2004) on
+Jacobian-free Newton–Krylov.

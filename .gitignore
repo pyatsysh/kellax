@@ -23,5 +23,11 @@ scripts/out/
 notes/.obsidian/
 .obsidian/
 
-# research notes live in the Dropbox Obsidian vault (symlinked)
+# local research notes (not part of the library)
 /notes
+
+# local notes layer (never commit)
+/Home.md
+/_meta/
+/codebases/
+/concepts/

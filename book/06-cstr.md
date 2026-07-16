@@ -20,10 +20,10 @@ branch, a hot branch, and an unstable one between. Trace the S-curve and refine
 the two folds — the **ignition** and **extinction** points:
 
 ```python
-R = lambda x, Da: G(x, Da, B=6.0)
-br = arclength_continuation(R, jnp.array([0.03]), p0=0.02, ds=0.008, ...)
+R = lambda x, Da: G(x, Da, B = 6.0)
+br = arclength_continuation(R, np.array([0.03]), p0 = 0.02, ds = 0.008, ...)
 for i in br.turning_points[:2]:
-    xf, Daf, _, _ = refine_fold(R, jnp.array(br.x[i]), float(br.p[i]))
+    xf, Daf, _, _ = refine_fold(R, np.array(br.x[i]), float(br.p[i]))
 ```
 ```
 S-curve at B=6: ignition Da=0.075403 (ref 0.075403), extinction Da=0.032873 (ref 0.032873)
@@ -58,6 +58,6 @@ the reactor is monostable, no matter the residence time.
 - **Stability is the reactor's.** With $\dot x = G$, the cold and hot branches are
   stable, the middle one unstable — which is exactly why the reactor jumps.
 
-Background: the vault notes *Folds & Moore–Spence* and *Pseudo-arclength continuation*.
+Background: Uppal, Ray & Poore (1974) for the CSTR multiplicity diagram.
 
 Next: [a predator–prey fold pair](07-predator-prey.md) — the same folds in ecology.

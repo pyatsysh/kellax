@@ -18,8 +18,8 @@ We take the Bratu residual matrix-free (the Laplacian by roll-and-subtract, no
 $N\times N$ matrix) and trace it both ways at $N=300$:
 
 ```python
-br_d = arclength_continuation(R, jnp.zeros(N), ...)                 # dense
-br_m = mf_arclength_continuation(R, jnp.zeros(N), precond=precond)  # matrix-free
+br_d = arclength_continuation(R, np.zeros(N), ...)                    # dense
+br_m = mf_arclength_continuation(R, np.zeros(N), precond = precond)   # matrix-free
 ```
 ```
 correctness check at N = 300:
@@ -60,7 +60,8 @@ Swift–Hohenberg operator.
   bracket, not a refined value. A matrix-free bordered fold solve is a roadmap
   item.
 
-Background: the vault note *Matrix-free & Krylov solves*.
+Background: Knoll & Keyes (2004) on Jacobian-free Newton–Krylov; Eisenstat &
+Walker (1996) for the forcing schedule.
 
 Next: [homoclinic snaking](05-snaking.md) — the matrix-free-capable engine on a
 pattern-forming PDE.

@@ -24,9 +24,9 @@ The coexistence branch is an S in $d$, so — with no branch-switching needed �
 seed one coexistence state *inside* the window and continue **both** ways:
 
 ```python
-z0, _ = newton(R, jnp.array([0.79, 0.58]), d0=0.22)     # a coexistence equilibrium
+z0, _ = newton(R, np.array([0.79, 0.58]), d0 = 0.22)    # a coexistence equilibrium
 for direction in (-1.0, +1.0):
-    arclength_continuation(R, z0, p0=0.22, direction=direction, ...)
+    arclength_continuation(R, z0, p0 = 0.22, direction = direction, ...)
 ```
 ```
 fold: d=0.176930, x=0.91127, y=0.26820
@@ -51,6 +51,7 @@ folding twice.
   event — periodic-orbit continuation is a roadmap item, not a v1 feature. Being
   honest about that boundary is part of the point.
 
-Background: the vault note *Folds & Moore–Spence*.
+Background: Kuznetsov, *Elements of Applied Bifurcation Theory* (the model is
+MatCont's EcoMod tutorial).
 
 Next: [Bratu in 2D](08-bratu-2d.md) — a fold of a genuine 2-D field.

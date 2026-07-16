@@ -1,22 +1,20 @@
 """Shared plotting style and branch-diagram helpers for the kellax examples.
 
 One import gives every example the same look: the Okabe--Ito colourblind-safe
-qualitative palette, thin recessive axes, and — the important part — **stable and
-unstable branches drawn as solid vs dashed**, a non-colour cue so the diagrams
-stay readable in greyscale and under colour-vision deficiency. Folds are marked
-with ringed dots. Stability is computed honestly from the eigenvalues of the
-state Jacobian dR/dx along the branch.
+qualitative palette, thin recessive axes, and — the important part — stable
+and unstable branches drawn as solid vs dashed, a non-colour cue so the
+diagrams stay readable in greyscale and under colour-vision deficiency. Folds
+are marked with ringed dots. Stability is computed honestly from the
+eigenvalues of the state Jacobian dR/dx along the branch.
 """
-from __future__ import annotations
-
 import os
 
-import numpy as np
+import numpy as onp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import jax
-import jax.numpy as jnp
+import jax.numpy as np
 
 # Okabe & Ito (2008) colourblind-safe qualitative palette.
 OKABE_ITO = {
@@ -49,28 +47,29 @@ def apply_style():
 
 
 def savefig(fig, name):
-    os.makedirs(FIGDIR, exist_ok=True)
+    os.makedirs(FIGDIR, exist_ok = True)
     path = os.path.join(FIGDIR, name)
     fig.savefig(path)
     print(f"  wrote {os.path.relpath(path)}")
     return path
 
 
-def branch_stability(residual, xs, ps, sign=-1.0):
+def branch_stability(residual, xs, ps, sign = -1.0):
     """Boolean mask: is each (x, p) a stable equilibrium of  x_dot = sign * R ?
 
     Stable iff every eigenvalue of ``sign * dR/dx`` has negative real part.
-    ``sign=-1`` suits residuals written as a rate you drive to zero (gradient /
-    S-curve convention, outer branches stable); ``sign=+1`` suits a residual that
-    *is* the vector field (e.g. a parabolic PDE R = u_xx + f(u), lower branch
-    stable). Dense eigensolve — for the small/medium N of these examples.
+    ``sign = -1`` suits residuals written as a rate you drive to zero
+    (gradient / S-curve convention, outer branches stable); ``sign = +1``
+    suits a residual that *is* the vector field (e.g. a parabolic PDE
+    R = u_xx + f(u), lower branch stable). Dense eigensolve — for the
+    small/medium N of these examples.
     """
-    Rx = jax.jacfwd(residual, argnums=0)
+    Rx = jax.jacfwd(residual, argnums = 0)
     mask = []
     for x, p in zip(xs, ps):
-        J = sign * np.atleast_2d(np.asarray(Rx(jnp.asarray(x, dtype=float), float(p))))
-        mask.append(bool(np.max(np.linalg.eigvals(J).real) < 0.0))
-    return np.asarray(mask)
+        J = sign * onp.atleast_2d(onp.asarray(Rx(np.asarray(x, dtype = float), float(p))))
+        mask.append(bool(onp.max(onp.linalg.eigvals(J).real) < 0.0))
+    return onp.asarray(mask)
 
 
 def _runs(mask):
@@ -83,19 +82,20 @@ def _runs(mask):
             start = i
 
 
-def plot_branch(ax, xvals, yvals, stable=None, lw=2.2, zorder=2,
-                c_stable=STABLE_C, c_unstable=UNSTABLE_C):
+def plot_branch(ax, xvals, yvals, stable = None, lw = 2.2, zorder = 2,
+                c_stable = STABLE_C, c_unstable = UNSTABLE_C):
     """Plot ``y`` vs ``x`` along a branch: solid where stable, dashed where not.
 
-    ``stable`` is a boolean array (same length) or None (all solid, one colour).
-    Runs are bridged by one point so solid/dashed segments meet without a gap.
+    ``stable`` is a boolean array (same length) or None (all solid, one
+    colour). Runs are bridged by one point so solid/dashed segments meet
+    without a gap.
     """
-    xvals = np.asarray(xvals, float)
-    yvals = np.asarray(yvals, float)
+    xvals = onp.asarray(xvals, float)
+    yvals = onp.asarray(yvals, float)
     if stable is None:
         ax.plot(xvals, yvals, "-", color=c_stable, lw=lw, zorder=zorder)
         return
-    stable = np.asarray(stable, bool)
+    stable = onp.asarray(stable, bool)
     for a, b in _runs(stable):
         b2 = min(b + 1, len(xvals))     # bridge into the next run
         s = bool(stable[a])
@@ -103,13 +103,13 @@ def plot_branch(ax, xvals, yvals, stable=None, lw=2.2, zorder=2,
                 color=c_stable if s else c_unstable, lw=lw, zorder=zorder)
 
 
-def mark_folds(ax, xf, yf, ms=8.5, zorder=6):
+def mark_folds(ax, xf, yf, ms = 8.5, zorder = 6):
     """Ringed dots at fold locations (white fill, dark ring — reads in greyscale)."""
-    ax.plot(np.atleast_1d(xf), np.atleast_1d(yf), "o", color=FOLD_C, ms=ms,
+    ax.plot(onp.atleast_1d(xf), onp.atleast_1d(yf), "o", color=FOLD_C, ms=ms,
             mfc="white", mew=1.9, zorder=zorder, label="_nolegend_")
 
 
-def stability_legend(ax, loc="best", extra=None):
+def stability_legend(ax, loc = "best", extra = None):
     """A stable(solid)/unstable(dashed)/fold legend built from proxy artists."""
     from matplotlib.lines import Line2D
     h = [Line2D([0], [0], color=STABLE_C, lw=2.2, ls="-", label="stable"),

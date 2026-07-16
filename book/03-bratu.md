@@ -22,13 +22,13 @@ discretisation is the *only* modelling — kellax differentiates $R$ for every
 Jacobian it needs:
 
 ```python
-D2 = (jnp.diag(-2*jnp.ones(N)) + jnp.diag(off,1) + jnp.diag(off,-1)) / h**2
-R  = lambda u, lam: D2 @ u + lam*jnp.exp(u)
+D2 = (np.diag(-2*np.ones(N)) + np.diag(off, 1) + np.diag(off, -1)) / h**2
+R  = lambda u, lam: D2 @ u + lam*np.exp(u)
 
-br = arclength_continuation(R, jnp.zeros(N), p0=0.3, ds=0.03, ds_max=0.15,
-                            n_steps=900, p_min=0.25, p_max=6.0, direction=1.0)
+br = arclength_continuation(R, np.zeros(N), p0 = 0.3, ds = 0.03, ds_max = 0.15,
+                            n_steps = 900, p_min = 0.25, p_max = 6.0, direction = 1.0)
 i = br.turning_points[0]
-_, lam_f, _, res = refine_fold(R, jnp.array(br.x[i]), float(br.p[i]))
+_, lam_f, _, res = refine_fold(R, np.array(br.x[i]), float(br.p[i]))
 # refined fold: lambda* = 3.513785  (reference 3.513831, diff 4.5e-5),  res 2.9e-11
 ```
 
@@ -55,8 +55,8 @@ cool, at-fold, and hot — the hot one a tall thermal spike.
   thousands — a 2-D or 3-D field — and you can no longer form that matrix; that is
   what the matrix-free engine and the *snaking* chapter are for.
 
-Background: the vault notes *Pseudo-arclength continuation* and *Autodiff & the JAX
-substrate*.
+Background: Seydel, *Practical Bifurcation and Stability Analysis* (BVP
+continuation); Allgower & Georg, *Numerical Continuation Methods*.
 
 Next: [scaling up](04-matrix-free.md) — the same trace, matrix-free — then
 [homoclinic snaking](05-snaking.md) in the Swift–Hohenberg equation.

@@ -27,9 +27,9 @@ bordered system that stays non-singular through the turning point. In kellax tha
 is one call — you never see the bordering:
 
 ```python
-R = lambda x, p: jnp.array([x[0]**3 - x[0] + p])
-br = arclength_continuation(R, jnp.array([-1.2]), p0=0.7, ds=0.03, ds_max=0.06,
-                            n_steps=600, p_min=-1.2, p_max=1.2, direction=-1.0)
+R = lambda x, p: np.array([x[0]**3 - x[0] + p])
+br = arclength_continuation(R, np.array([-1.2]), p0 = 0.7, ds = 0.03, ds_max = 0.06,
+                            n_steps = 600, p_min = -1.2, p_max = 1.2, direction = -1.0)
 # traced 80 points; 2 turning points detected
 ```
 
@@ -39,7 +39,7 @@ pins each to Newton precision by solving the Moore–Spence augmented system:
 
 ```python
 for i in br.turning_points[:2]:
-    xf, pf, vf, res = refine_fold(R, jnp.array(br.x[i]), float(br.p[i]))
+    xf, pf, vf, res = refine_fold(R, np.array(br.x[i]), float(br.p[i]))
 # refined fold: p = -0.3849001795  (exact -2/(3√3)),  x = -0.577350,  residual 5.6e-17
 # refined fold: p = +0.3849001795  (exact +2/(3√3)),  x = +0.577350,  residual 5.6e-17
 ```
@@ -57,8 +57,8 @@ Ten correct digits, residual at machine epsilon.
   the parameter derivative $\partial R/\partial p$, and (for the refinement) the
   second-derivative term $\partial(R_x v)/\partial x$ all came from `jax.jacfwd`.
 
-Background: the vault note *Pseudo-arclength continuation* and *Folds &
-Moore–Spence*.
+Background: Keller (1977); Seydel, *Practical Bifurcation and Stability
+Analysis*; Govaerts (2000).
 
 Next: [the cusp](02-the-cusp.md) — what happens to these two folds as a second
 parameter turns them into a curve.

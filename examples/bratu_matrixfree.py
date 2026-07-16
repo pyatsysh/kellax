@@ -18,13 +18,12 @@ Two things to take away:
 
 Run:  python examples/bratu_matrixfree.py
 """
-from __future__ import annotations
-
 import time
-import numpy as np
+
 import jax
 jax.config.update("jax_enable_x64", True)
-import jax.numpy as jnp
+import jax.numpy as np
+import numpy as onp
 import matplotlib.pyplot as plt
 
 from kellax import (arclength_continuation, mf_arclength_continuation,
@@ -40,18 +39,18 @@ def bratu_problem(N):
     h = 1.0 / (N + 1)
 
     def R(u, lam):                                    # no N x N matrix is ever formed
-        up = jnp.concatenate([u[1:], jnp.zeros(1)])
-        um = jnp.concatenate([jnp.zeros(1), u[:-1]])
-        return (um - 2.0 * u + up) / h ** 2 + lam * jnp.exp(u)
+        up = np.concatenate([u[1:], np.zeros(1)])
+        um = np.concatenate([np.zeros(1), u[:-1]])
+        return (um - 2.0 * u + up) / h ** 2 + lam * np.exp(u)
 
     # M^{-1} ~ (D2)^{-1}: the Dirichlet Laplacian is diagonalised by the DST-I,
     # so its inverse is one sine transform, a divide by eigenvalues, and one back.
-    lap_eig = jnp.asarray((2.0 * np.cos(np.arange(1, N + 1) * np.pi / (N + 1)) - 2.0) / h ** 2)
+    lap_eig = np.asarray((2.0 * onp.cos(onp.arange(1, N + 1) * onp.pi / (N + 1)) - 2.0) / h ** 2)
 
     def dst1(v):                                      # DST-I via FFT of the odd extension
-        v = jnp.asarray(v)
-        ext = jnp.concatenate([jnp.zeros(1), v, jnp.zeros(1), -v[::-1]])
-        return -jnp.fft.rfft(ext).imag[1:N + 1]
+        v = np.asarray(v)
+        ext = np.concatenate([np.zeros(1), v, np.zeros(1), -v[::-1]])
+        return -np.fft.rfft(ext).imag[1:N + 1]
 
     def precond(v):
         return dst1(dst1(v) * (2.0 / (N + 1)) / lap_eig)
@@ -59,15 +58,15 @@ def bratu_problem(N):
     return R, precond
 
 
-def trace(engine, R, refine=True, **kw):
+def trace(engine, R, refine = True, **kw):
     t = time.time()
-    br = engine(R, jnp.zeros(kw.pop("N")), p0=0.3, ds=0.03, ds_max=0.15, n_steps=700,
-                p_min=0.25, p_max=6.0, direction=1.0, **kw)
+    br = engine(R, np.zeros(kw.pop("N")), p0 = 0.3, ds = 0.03, ds_max = 0.15,
+                n_steps = 700, p_min = 0.25, p_max = 6.0, direction = 1.0, **kw)
     i = br.turning_points[0]
     if refine:                            # dense Moore-Spence: O(N^3), fine at moderate N
-        _, lam_f, _, _ = refine_fold(R, jnp.array(br.x[i]), float(br.p[i]))
+        _, lam_f, _, _ = refine_fold(R, np.array(br.x[i]), float(br.p[i]))
     else:                                 # step-limited bracket only (matrix-free fold
-        lam_f = float(br.p[i])            # refinement is still a roadmap item)
+        lam_f = float(br.p[i])            # refinement is still a 2Do)
     return br, float(lam_f), time.time() - t
 
 
@@ -77,9 +76,9 @@ def main():
     # -- correctness: dense vs matrix-free at a moderate N ----------------
     Nc = 300
     R, precond = bratu_problem(Nc)
-    br_d, lam_d, t_d = trace(arclength_continuation, R, N=Nc)
-    br_m, lam_m, t_m = trace(mf_arclength_continuation, R, N=Nc, precond=precond,
-                             gmres_restart=80, gmres_maxiter=80)
+    br_d, lam_d, t_d = trace(arclength_continuation, R, N = Nc)
+    br_m, lam_m, t_m = trace(mf_arclength_continuation, R, N = Nc, precond = precond,
+                             gmres_restart = 80, gmres_maxiter = 80)
     print(f"correctness check at N = {Nc}:")
     print(f"  dense       fold lambda* = {lam_d:.6f}  [{t_d:.1f}s]")
     print(f"  matrix-free fold lambda* = {lam_m:.6f}  [{t_m:.1f}s]")
@@ -88,18 +87,18 @@ def main():
     # -- scaling: matrix-free only, large N (dense would need an N^2 matrix)
     Nb = 4000
     Rb, precond_b = bratu_problem(Nb)
-    _, lam_b, t_b = trace(mf_arclength_continuation, Rb, N=Nb, refine=False,
-                          precond=precond_b, gmres_restart=100, gmres_maxiter=100)
+    _, lam_b, t_b = trace(mf_arclength_continuation, Rb, N = Nb, refine = False,
+                          precond = precond_b, gmres_restart = 100, gmres_maxiter = 100)
     print(f"scaling: matrix-free at N = {Nb} -> fold bracket lambda ~ {lam_b:.4f}  [{t_b:.1f}s]"
-          f"  (dense here needs a {Nb}x{Nb} Jacobian; fold refinement is dense -> roadmap)")
+          f"  (dense here needs a {Nb}x{Nb} Jacobian; matrix-free fold refinement is a 2Do)")
 
     # -- figure: the two engines agree -----------------------------------
-    stable = branch_stability(R, list(br_d.x), list(np.asarray(br_d.p)), sign=+1.0)
-    fig, ax = plt.subplots(figsize=(6.8, 4.8))
-    plot_branch(ax, br_d.p, np.max(np.abs(br_d.x), axis=1), stable=stable)
-    ax.plot(br_m.p, np.max(np.abs(br_m.x), axis=1), "o", ms=4.5, color=ACCENT,
+    stable = branch_stability(R, list(br_d.x), list(onp.asarray(br_d.p)), sign = +1.0)
+    fig, ax = plt.subplots(figsize = (6.8, 4.8))
+    plot_branch(ax, br_d.p, onp.max(onp.abs(br_d.x), axis = 1), stable = stable)
+    ax.plot(br_m.p, onp.max(onp.abs(br_m.x), axis = 1), "o", ms=4.5, color=ACCENT,
             mfc="none", mew=1.3, zorder=4)
-    mark_folds(ax, lam_d, np.max(np.abs(br_d.x[br_d.turning_points[0]])))
+    mark_folds(ax, lam_d, onp.max(onp.abs(br_d.x[br_d.turning_points[0]])))
     ax.set_xlabel(r"ignition parameter $\lambda$")
     ax.set_ylabel(r"$\|u\|_\infty$")
     ax.set_title(rf"Bratu at $N={Nc}$: dense (lines) vs matrix-free (markers)")

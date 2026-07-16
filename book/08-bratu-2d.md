@@ -21,10 +21,10 @@ continue in $\lambda$:
 def R(u, lam):                                  # u is the flattened N x N field
     U = u.reshape(N, N)
     lap = (roll_up + roll_dn + roll_lt + roll_rt - 4*U) / h**2
-    return (lap + lam*jnp.exp(U)).reshape(-1)
+    return (lap + lam*np.exp(U)).reshape(-1)
 
-br = arclength_continuation(R, jnp.zeros(N*N), p0=0.3, ...)
-_, lam_f, _, _ = refine_fold(R, jnp.array(br.x[i]), float(br.p[i]))
+br = arclength_continuation(R, np.zeros(N*N), p0 = 0.3, ...)
+_, lam_f, _, _ = refine_fold(R, np.array(br.x[i]), float(br.p[i]))
 ```
 ```
 2-D Bratu (N^2 = 400 dof): refined fold lambda* = 6.80469   (unit-square ref ~6.808)
@@ -47,9 +47,6 @@ solution *at the fold* — a smooth thermal bump, $\lVert u\rVert_\infty \approx
   stumbles on this 2-D residual at the initial step — a known rough edge; the 1-D
   matrix-free path in chapter 4 is solid.)*
 
-Background: the vault notes *Pseudo-arclength continuation* and *Matrix-free &
-Krylov solves*.
-
 This is the last written chapter. The book grows with the example suite — a
-predator–prey Hopf, branch-switching at pitchforks, and differentiable continuation
-are the next frontiers (see the project [Roadmap](../notes)).
+predator–prey Hopf, branch-switching at pitchforks, and differentiable
+continuation come next (see the roadmap in the [README](../README.md)).

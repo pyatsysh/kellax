@@ -69,8 +69,4 @@ python examples/predator_prey.py      # -> figures/predator_prey.png
 python examples/bratu_2d.py           # -> figures/bratu_2d.png
 ```
 
-The mathematical background for each method has a companion note in the project's
-research vault (`concepts/`): *Pseudo-arclength continuation*, *Folds &
-Moore–Spence*, *Bordered systems & Newton*, *Matrix-free & Krylov solves*.
-
 See also the narrative [TUTORIAL](../TUTORIAL.md) for a faster, API-first tour.
