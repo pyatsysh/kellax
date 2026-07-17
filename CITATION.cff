@@ -10,8 +10,8 @@ type: software
 authors:
   - family-names: Yatsyshin
     given-names: Peter
-    # orcid: "https://orcid.org/0000-0000-0000-0000"  # TODO: add ORCID
-version: "0.3.0"
+    orcid: "https://orcid.org/0000-0002-8844-281X"
+version: "0.4.0"
 license: Apache-2.0
 repository-code: "https://github.com/pyatsysh/kellax"
 url: "https://github.com/pyatsysh/kellax"

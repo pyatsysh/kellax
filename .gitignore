@@ -16,6 +16,10 @@ scripts/out/
 *.hdf5
 *.mat
 
+# JOSS paper build artifacts (rendered by the draft-pdf workflow / local pandoc)
+paper/paper.pdf
+paper/jats/
+
 # os / editor
 .DS_Store
 

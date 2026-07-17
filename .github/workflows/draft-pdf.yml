@@ -1,0 +1,34 @@
+name: Draft PDF
+
+# Builds the JOSS paper (paper/paper.md + paper/paper.bib) into a PDF via the
+# Open Journals pandoc pipeline, and uploads it as a workflow artifact. This is
+# the same renderer JOSS runs on submission, so the artifact previews the paper
+# exactly as reviewers will see it.
+
+on:
+  push:
+    paths:
+      - paper/**
+      - .github/workflows/draft-pdf.yml
+  pull_request:
+    paths:
+      - paper/**
+      - .github/workflows/draft-pdf.yml
+
+jobs:
+  paper:
+    name: Paper Draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build draft PDF
+        uses: openjournals/openjournals-draft-pdf@master
+        with:
+          journal: joss
+          paper-path: paper/paper.md
+      - name: Upload paper PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper
+          path: paper/paper.pdf
