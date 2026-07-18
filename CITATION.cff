@@ -22,4 +22,4 @@ keywords:
   - fold tracking
   - automatic differentiation
   - JAX
-# doi: "10.5281/zenodo.XXXXXXX"  # TODO: add after minting the Zenodo release DOI
+doi: "10.5281/zenodo.21433167"

@@ -1,6 +1,7 @@
 # kellax — pseudo-arclength continuation and bifurcation analysis in JAX
 
 [![CI](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml/badge.svg)](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21433166.svg)](https://doi.org/10.5281/zenodo.21433166)
 
 kellax traces solution branches of **R(x, p) = 0** through folds. The user
 supplies the residual. Every derivative the method needs is obtained from it
@@ -152,4 +153,6 @@ bifurcation diagrams.
 
 ## Citing
 
-See [`CITATION.cff`](CITATION.cff). License: Apache-2.0.
+See [`CITATION.cff`](CITATION.cff). Releases are archived on Zenodo:
+[10.5281/zenodo.21433166](https://doi.org/10.5281/zenodo.21433166) resolves to
+the latest version. License: Apache-2.0.
