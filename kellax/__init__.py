@@ -20,10 +20,22 @@ bifurcating branch through deflation (``deflated_newton`` /
 ``bifurcation_diagram`` composes trace -> classify -> switch -> recurse.
 ``fold_sensitivity`` is the differentiable-continuation primitive: the
 exact gradient of a fold location with respect to model parameters, by
-implicit differentiation of the converged Moore-Spence system. Roadmap:
-periodic-orbit continuation from Hopf points.
+implicit differentiation of the converged Moore-Spence system. v0.5 (consolidation from the cdft toolbox): the ladder's inner solvers —
+``fixed_point_solve`` (damped Picard -> Anderson/DIIS globaliser),
+``newton_krylov`` with the generic bordered step factory
+(``make_step_bordered``: mass constraints, phase conditions), autodiff-
+Hessian spectra (``hessian_spectrum``, matrix-free Lanczos; scipy lazily),
+and ``ift_injection`` (differentiable solutions by the implicit-function
+theorem, dense or Krylov-adjoint). Roadmap: periodic-orbit continuation
+from Hopf points; delegate matrixfree's arclength step through
+``make_step_bordered`` (internal dedup).
 """
 from .keller import Branch, arclength_continuation, newton
+from .fixedpoint import fixed_point_solve
+from .newton_krylov import newton_krylov, make_step, make_step_bordered
+from .hessian import (hessian_vector_product, hessian_spectrum,
+                      smallest_eigenvalue, morse_index)
+from .implicit import ift_injection
 from .folds import FoldBranch, refine_fold, track_fold
 from .bordered import bordered_newton
 from .matrixfree import arclength_continuation as mf_arclength_continuation
@@ -33,4 +45,4 @@ from .hopf import refine_hopf
 from .sensitivity import fold_sensitivity
 from .branching import DiagramBranch, branch_off, bifurcation_diagram
 
-__version__ = "0.4.0"
+__version__ = "0.5.0.dev0"
