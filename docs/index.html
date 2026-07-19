@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>kellax — continuation in JAX</title>
+<title>kellax: continuation in JAX</title>
 <meta name="description" content="kellax: pseudo-arclength continuation and bifurcation analysis in JAX. Trace R(x,p)=0 through folds with autodiff Jacobians; refine, track and differentiate the folds themselves.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M28 27 C10 25 6 22 16 16 C26 10 22 7 4 5' fill='none' stroke='%235E81AC' stroke-width='3.4' stroke-linecap='round'/%3E%3Ccircle cx='23.5' cy='11.2' r='3.1' fill='%23BF616A'/%3E%3Ccircle cx='8.5' cy='20.8' r='3.1' fill='%23BF616A'/%3E%3C/svg%3E">
 <style>
@@ -79,7 +79,7 @@
   :root {
     --ground: #2E3440;
     --panel: #3B4252;       /* nord1 */
-    --ink: #ECEFF4;
+    --ink: #D8DEE9;         /* nord4, sketchnord token table */
     --muted: #AEB8CC;
     --rule: #434C5E;        /* nord2 */
     --nav: #3B4252;
@@ -96,7 +96,7 @@
   --link-hover: #81A1C1; --curve: #5E81AC; --curve-unstable: #7B88A1;
 }
 :root[data-theme="dark"] {
-  --ground: #2E3440; --panel: #3B4252; --ink: #ECEFF4; --muted: #AEB8CC;
+  --ground: #2E3440; --panel: #3B4252; --ink: #D8DEE9; --muted: #AEB8CC;
   --rule: #434C5E; --nav: #3B4252; --nav-text: #ECEFF4; --link: #88C0D0;
   --link-hover: #8FBCBB; --curve: #88C0D0; --curve-unstable: #7B88A1;
 }
@@ -378,14 +378,14 @@ footer {
     <div>
       <p class="eyebrow">A JAX library &middot; v0.4.0 &middot; Apache-2.0</p>
       <h1>kell<span class="ax">ax</span></h1>
-      <p class="lede">Pseudo-arclength continuation and bifurcation analysis, differentiable end to end.</p>
+      <p class="lede">Pseudo-arclength continuation and bifurcation analysis; the fold locations carry exact gradients.</p>
       <p class="intro">kellax traces solution branches of <strong>R(x,&thinsp;p) = 0</strong> through
         folds. You supply the residual; every derivative the method needs is obtained from it by
         automatic differentiation, and the bordered Keller formulation stays non-singular where
         naive parameter stepping jumps or stalls. The traced branch is then read as a dynamical
         object: its spectrum classifies folds, branch points and Hopf candidates. Each detected
-        point can be refined to Newton precision and — for the first time in a continuation
-        package — differentiated with respect to the parameters of the model.</p>
+        point can be refined to Newton precision and, for the first time in a continuation
+        package, differentiated with respect to the parameters of the model.</p>
       <div class="hero-ctas">
         <a class="btn btn-solid" href="https://github.com/pyatsysh/kellax">github.com/pyatsysh/kellax</a>
         <a class="btn btn-ghost" href="#book">Read the book</a>
@@ -428,8 +428,8 @@ footer {
 
 <section id="quickstart">
   <h2>Quickstart</h2>
-  <p>The figure above is this program. The residual is one lambda; continuation, fold
-     refinement and the fold's parameter gradient follow from it.</p>
+  <p>The figure above is this program. The residual is one lambda; the rest follows
+     from it by automatic differentiation.</p>
 <pre><code><span class="k">import</span> jax; jax.config.<span class="f">update</span>(<span class="s">"jax_enable_x64"</span>, <span class="k">True</span>)
 <span class="k">import</span> jax.numpy <span class="k">as</span> np
 <span class="k">from</span> kellax <span class="k">import</span> arclength_continuation, refine_fold, fold_sensitivity
@@ -450,7 +450,7 @@ dp                                                        <span class="c"># d(fo
   <h2>The landscape</h2>
   <p>Numerical continuation is the standard tool for mapping out multiplicity and hysteresis:
      phase transitions, ignition thresholds, pattern selection. Its mature implementations live
-     outside the modern Python stack — AUTO-07p in Fortran; MatCont, COCO and pde2path in
+     outside the modern Python stack: AUTO-07p in Fortran; MatCont, COCO and pde2path in
      MATLAB; LOCA/Trilinos in C++. The one modern autodiff-native package is
      <a href="https://github.com/bifurcationkit/BifurcationKit.jl">BifurcationKit.jl</a> in
      Julia. It remains considerably more complete than kellax on periodic orbits and kellax
@@ -552,7 +552,7 @@ dp                                                        <span class="c"># d(fo
 
 <section id="book">
   <h2>The book</h2>
-  <p><em>kellax by solved problems</em> — nine chapters, each a single worked problem. Each
+  <p><em>kellax by solved problems</em>: nine chapters, each a single worked problem. Each
      chapter's script lives in
      <a href="https://github.com/pyatsysh/kellax/tree/main/examples">examples/</a> and
      regenerates its figure; the printed numbers are real output. The
@@ -560,14 +560,14 @@ dp                                                        <span class="c"># d(fo
      quick tour of the API.</p>
   <ol class="toc">
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/01-the-fold.md">The fold</a><span class="what">the canonical S-curve</span></li>
-    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/02-the-cusp.md">The cusp</a><span class="what">two parameters, one organising centre</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/02-the-cusp.md">The cusp</a><span class="what">the two-parameter fold law</span></li>
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/03-bratu.md">Bratu&ndash;Gelfand</a><span class="what">ignition in 1-D</span></li>
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/04-matrix-free.md">Matrix-free scaling</a><span class="what">GMRES over JVPs</span></li>
-    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/05-snaking.md">Homoclinic snaking</a><span class="what">38 folds, one branch</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/05-snaking.md">Homoclinic snaking</a><span class="what">38 folds in one continuation</span></li>
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/06-cstr.md">CSTR hysteresis</a><span class="what">ignition and extinction</span></li>
-    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/07-predator-prey.md">A predator&ndash;prey fold pair</a><span class="what">MatCont, matched</span></li>
-    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/08-bratu-2d.md">Bratu in 2-D</a><span class="what">a PDE, matrix-free</span></li>
-    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/09-differentiable.md">Differentiable continuation</a><span class="what">gradients of the diagram</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/07-predator-prey.md">A predator&ndash;prey fold pair</a><span class="what">folds matched to MatCont</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/08-bratu-2d.md">Bratu in 2-D</a><span class="what">matrix-free in two dimensions</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/09-differentiable.md">Differentiable continuation</a><span class="what">gradients of the fold location</span></li>
   </ol>
 </section>
 
@@ -578,6 +578,14 @@ dp                                                        <span class="c"># d(fo
 python examples/cubic_fold.py          <span class="c"># -> figures/cubic_fold.png</span></code></pre>
   <p>kellax requires float64: <code>jax.config.update("jax_enable_x64", True)</code> once at
      the top of every script.</p>
+</section>
+
+<section id="citing">
+  <h2>Citing</h2>
+  <p>Cite via <a href="https://github.com/pyatsysh/kellax/blob/main/CITATION.cff">CITATION.cff</a>.
+     Releases are archived on Zenodo;
+     <a href="https://doi.org/10.5281/zenodo.21433166">10.5281/zenodo.21433166</a> resolves to
+     the latest version.</p>
 </section>
 
 <section id="roadmap">
@@ -599,10 +607,9 @@ python examples/cubic_fold.py          <span class="c"># -> figures/cubic_fold.p
 
 <footer>
   <div class="footer-inner">
-    <p>Apache-2.0 &middot;
-       cite via <a href="https://github.com/pyatsysh/kellax/blob/main/CITATION.cff">CITATION.cff</a> &middot;
-       DOI <a href="https://doi.org/10.5281/zenodo.21433166">10.5281/zenodo.21433166</a> &middot;
-       <a href="https://github.com/pyatsysh/kellax">github.com/pyatsysh/kellax</a></p>
+    <p>&copy; Peter Yatsyshin &middot;
+       <a href="https://www.yatsyshin.com">yatsyshin.com</a> &middot;
+       <a href="https://github.com/pyatsysh/kellax/blob/main/LICENSE">Apache-2.0</a></p>
   </div>
 </footer>
 

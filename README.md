@@ -1,4 +1,4 @@
-# kellax — pseudo-arclength continuation and bifurcation analysis in JAX
+# kellax: pseudo-arclength continuation and bifurcation analysis in JAX
 
 [![CI](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml/badge.svg)](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21433166.svg)](https://doi.org/10.5281/zenodo.21433166)
@@ -9,7 +9,7 @@ by automatic differentiation, and the bordered Keller formulation stays
 non-singular where naive parameter stepping jumps or stalls. The traced branch
 is then read as a dynamical object: its spectrum classifies folds, branch
 points and Hopf candidates. Each detected point can be refined to Newton
-precision and — for the first time in a continuation package — differentiated
+precision and, for the first time in a continuation package, differentiated
 with respect to the parameters of the model.
 
 ```python
@@ -40,7 +40,7 @@ figure.*
 
 Numerical continuation is the standard tool for mapping out multiplicity and
 hysteresis: phase transitions, ignition thresholds, pattern selection. Its
-mature implementations live outside the modern Python stack — AUTO-07p in
+mature implementations live outside the modern Python stack: AUTO-07p in
 Fortran; MatCont, COCO and pde2path in MATLAB; LOCA/Trilinos in C++. The one
 modern autodiff-native package is BifurcationKit.jl in Julia. It remains
 considerably more complete than kellax on periodic orbits and kellax does not
@@ -76,31 +76,31 @@ jit-compiles and runs unchanged on CPU or GPU, in float64 throughout.
 
 ## The toolbox (v0.4.0)
 
-- `arclength_continuation` — the dense Keller trace with adaptive steps and
+- `arclength_continuation`: the dense Keller trace with adaptive steps and
   fold detection. Returns a `Branch` (states, parameters, tangents, turning
   points).
-- `mf_arclength_continuation` — the matrix-free counterpart: preconditioned
+- `mf_arclength_continuation`: the matrix-free counterpart: preconditioned
   GMRES over `jax.linearize` JVPs with a `precond` hook and `p_stop` landing.
   For fields of 10^4–10^6 dof the Jacobian is never formed.
-- `refine_fold` / `track_fold` — Moore–Spence refinement of a detected fold to
+- `refine_fold` / `track_fold`: Moore–Spence refinement of a detected fold to
   Newton precision, and continuation of the fold itself in a second parameter.
   The augmented system is continued by arclength, so cusps are passed and
   reported.
-- `analyze_branch` / `branch_eigenvalues` — the spectrum along the branch:
+- `analyze_branch` / `branch_eigenvalues`: the spectrum along the branch:
   stability, and the classification of every axis crossing into fold, branch
   point or Hopf candidate.
-- `refine_hopf` — a Hopf point pinned by the standard (3N+2) augmented system,
+- `refine_hopf`: a Hopf point pinned by the standard (3N+2) augmented system,
   with second derivatives supplied by autodiff.
-- `deflated_newton` / `deflated_search` — Farrell-style deflation: Newton
+- `deflated_newton` / `deflated_search`: Farrell-style deflation: Newton
   converges away from the solutions already found. This is the route to
   disconnected branches.
-- `branch_off` / `bifurcation_diagram` — switching onto the bifurcating branch
+- `branch_off` / `bifurcation_diagram`: switching onto the bifurcating branch
   at a simple branch point, and a bounded-depth recursive driver: trace,
   classify, switch, recurse (equilibria only).
-- `fold_sensitivity` — the exact gradient of a fold location with respect to
+- `fold_sensitivity`: the exact gradient of a fold location with respect to
   the model parameters, by implicit differentiation of the converged
   Moore–Spence system.
-- `bordered_newton` / `newton` — the generic (N+k) bordered primitive and
+- `bordered_newton` / `newton`: the generic (N+k) bordered primitive and
   plain Newton for seeding.
 
 Every claim above is validated against an exact result or the literature. The
@@ -116,7 +116,7 @@ passes its 38 folds in one continuation.
 
 ## The book
 
-[*kellax by solved problems*](book/README.md) — nine chapters, each a single
+[*kellax by solved problems*](book/README.md): nine chapters, each a single
 worked problem: [the fold](book/01-the-fold.md), [the cusp](book/02-the-cusp.md),
 [Bratu–Gelfand](book/03-bratu.md), [matrix-free scaling](book/04-matrix-free.md),
 [homoclinic snaking](book/05-snaking.md), [CSTR hysteresis](book/06-cstr.md),
