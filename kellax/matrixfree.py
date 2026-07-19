@@ -70,8 +70,16 @@ def _make_step(residual, precond, restart, maxiter, eta_min, eta_max, ls_max,
         m0 = np.sqrt(np.vdot(R, R) + ph * ph)
         res0 = np.maximum(np.max(np.abs(R)), np.abs(ph))
         eta = np.clip(np.sqrt(res0), eta_min, eta_max)    # Eisenstat-Walker
-        d, _ = gmres(jvp, (-R, -ph), x0 = (np.zeros_like(x), np.zeros_like(p)),
-                     M = Mb, tol = eta, atol = 0.0, restart = restart,
+        # gmres tests the PREconditioned residual against tol*|b| of the raw
+        # rhs, so a good Minv (|Minv b| << |b|) "converges" at iterate 0 and
+        # returns a zero step. State the forcing in the preconditioned norm:
+        # tol = 0 and atol = eta * |Minv b|, which reduces to the old
+        # tol = eta when precond is None and is invariant to scaling Minv.
+        b = (-R, -ph)
+        bM = b if Mb is None else Mb(b)
+        b_nrm = np.sqrt(np.vdot(bM[0], bM[0]) + bM[1] * bM[1])
+        d, _ = gmres(jvp, b, x0 = (np.zeros_like(x), np.zeros_like(p)),
+                     M = Mb, tol = 0.0, atol = eta * b_nrm, restart = restart,
                      maxiter = maxiter, solve_method = "batched")
         dx = np.where(np.isfinite(d[0]), d[0], 0.0)
         dp = np.where(np.isfinite(d[1]), d[1], 0.0)
@@ -122,9 +130,12 @@ def _make_tangent(residual, precond, restart, maxiter, w):
             vx, vp = u
             return (jvp((vx, vp)), w * np.vdot(tx0, vx) + tp0 * vp)
 
-        sol, _ = gmres(op, (np.zeros_like(x), np.ones_like(p)),
+        b = (np.zeros_like(x), np.ones_like(p))
+        bM = b if Mb is None else Mb(b)               # same preconditioned-norm
+        b_nrm = np.sqrt(np.vdot(bM[0], bM[0]) + bM[1] * bM[1])   # forcing as in
+        sol, _ = gmres(op, b,                                     # _make_step
                        x0 = (np.zeros_like(x), np.zeros_like(p)), M = Mb,
-                       tol = 1e-8, atol = 0.0, restart = restart,
+                       tol = 0.0, atol = 1e-8 * b_nrm, restart = restart,
                        maxiter = maxiter, solve_method = "batched")
         tx, tp = sol
         nrm = np.sqrt(w * np.vdot(tx, tx) + tp * tp)

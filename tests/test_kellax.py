@@ -210,6 +210,57 @@ def test_mf_matches_dense_bratu():
     assert abs(lam_d - lam_m) < 1e-6, (lam_d, lam_m)   # same discrete fold, two engines
 
 
+def _bratu_2d(N):
+    """Discretised Delta u + lambda e^u on the N x N unit-square grid, with the
+    exactly normalised inverse-Laplacian (2-D DST) preconditioner. The exact
+    normalisation is the point: it is the case that used to silence gmres."""
+    h = 1.0 / (N + 1)
+    k = onp.arange(1, N + 1)
+    eig1 = (2.0 * onp.cos(k * onp.pi / (N + 1)) - 2.0) / h ** 2
+    lam2 = np.asarray(eig1[:, None] + eig1[None, :])
+
+    def R(u, lam):
+        U = u.reshape(N, N)
+        up = np.concatenate([U[1:], np.zeros((1, N))], 0)
+        dn = np.concatenate([np.zeros((1, N)), U[:-1]], 0)
+        lt = np.concatenate([U[:, 1:], np.zeros((N, 1))], 1)
+        rt = np.concatenate([np.zeros((N, 1)), U[:, :-1]], 1)
+        return ((up + dn + lt + rt - 4.0 * U) / h ** 2 + lam * np.exp(U)).reshape(-1)
+
+    def dst1(v, axis):
+        n = v.shape[axis]
+        zeros = np.zeros(v.shape[:axis] + (1,) + v.shape[axis + 1:])
+        ext = np.concatenate([zeros, v, zeros, -np.flip(v, axis)], axis)
+        return -np.take(np.fft.rfft(ext, axis = axis).imag, np.arange(1, n + 1), axis)
+
+    dst2d = lambda V: dst1(dst1(V, 0), 1)
+    precond = lambda v: (dst2d(dst2d(v.reshape(N, N)) / lam2)
+                         / (2.0 * (N + 1)) ** 2).reshape(-1)
+    return R, precond
+
+
+def test_mf_precond_2d_bratu():
+    """Preconditioned matrix-free on a 2-D field. An exactly normalised
+    inverse-Laplacian shrinks |Minv b| far below |b|, and gmres's stopping
+    rule (preconditioned residual against tol * |b|) then returned a zero
+    step at the seed, so the initial corrector stalled and the trace never
+    started. The engine now states its forcing in the preconditioned norm;
+    the trace must leave the seed, pass the fold, and agree with dense."""
+    N = 16
+    R, precond = _bratu_2d(N)
+    kw = dict(p0 = 0.3, ds = 0.1, ds_max = 0.6, n_steps = 100,
+              p_min = 0.25, p_max = 12.0, direction = 1.0)
+    bd = arclength_continuation(R, np.zeros(N * N), **kw)
+    bm = mf_arclength_continuation(R, np.zeros(N * N), precond = precond, **kw)
+    assert bd.turning_points and bm.turning_points
+    _, lam_d, _, rd = refine_fold(R, np.array(bd.x[bd.turning_points[0]]),
+                                  float(bd.p[bd.turning_points[0]]))
+    _, lam_m, _, rm = refine_fold(R, np.array(bm.x[bm.turning_points[0]]),
+                                  float(bm.p[bm.turning_points[0]]))
+    assert float(rd) < 1e-8 and float(rm) < 1e-8, (rd, rm)
+    assert abs(lam_d - lam_m) < 1e-6, (lam_d, lam_m)   # same discrete fold
+
+
 if __name__ == "__main__":
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):
