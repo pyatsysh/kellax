@@ -3,6 +3,8 @@
 [![CI](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml/badge.svg)](https://github.com/pyatsysh/kellax/actions/workflows/ci.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21433166.svg)](https://doi.org/10.5281/zenodo.21433166)
 
+The project site is [pyatsysh.github.io/kellax](https://pyatsysh.github.io/kellax/).
+
 kellax traces solution branches of **R(x, p) = 0** through folds. The user
 supplies the residual. Every derivative the method needs is obtained from it
 by automatic differentiation, and the bordered Keller formulation stays
