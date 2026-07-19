@@ -38,8 +38,14 @@ def _l2(*rs):
 
 
 def _gmres(jvp, b, Minv, eta, x0, restart, maxiter):
-    d, _ = gmres(jvp, b, x0=x0, M=Minv, tol=eta, atol=0.0, restart=restart,
-                 maxiter=maxiter, solve_method="batched")
+    # gmres tests the PREconditioned residual against tol*|b| of the raw rhs,
+    # so a well-normalised Minv (|Minv b| << |b|) "converges" at iterate 0
+    # and returns a zero step. State the forcing in the preconditioned norm:
+    # tol = 0 and atol = eta * |Minv b|, which reduces to the old tol = eta
+    # when Minv is None and is invariant to scaling Minv.
+    bM = b if Minv is None else Minv(b)
+    d, _ = gmres(jvp, b, x0=x0, M=Minv, tol=0.0, atol=eta * _l2(bM),
+                 restart=restart, maxiter=maxiter, solve_method="batched")
     return jnp.where(jnp.isfinite(d), d, 0.0)          # Krylov breakdown guard
 
 
@@ -104,9 +110,12 @@ def make_step_bordered(residual, constraint, Minv, *, dx_max, restart,
         m0 = _l2(R, Rc)
         res0 = jnp.maximum(jnp.max(jnp.abs(R)), jnp.abs(Rc))
         eta = jnp.clip(jnp.sqrt(res0), eta_min, eta_max)
-        d, _ = gmres(jvp, (-R, -Rc), x0=(jnp.zeros_like(x), jnp.zeros_like(lam)),
-                     M=Mb, tol=eta, atol=0.0, restart=restart, maxiter=maxiter,
-                     solve_method="batched")
+        rhs = (-R, -Rc)
+        rhsM = rhs if Mb is None else Mb(rhs)          # preconditioned-norm
+        d, _ = gmres(jvp, rhs,                         # forcing, as in _gmres
+                     x0=(jnp.zeros_like(x), jnp.zeros_like(lam)), M=Mb,
+                     tol=0.0, atol=eta * _l2(rhsM[0], rhsM[1]),
+                     restart=restart, maxiter=maxiter, solve_method="batched")
         dx = jnp.where(jnp.isfinite(d[0]), d[0], 0.0)
         dlam = jnp.where(jnp.isfinite(d[1]), d[1], 0.0)
         raw = jnp.maximum(jnp.max(jnp.abs(dx)), jnp.abs(dlam))

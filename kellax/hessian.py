@@ -32,13 +32,20 @@ def hessian_vector_product(F, x):
 
 def hessian_spectrum(F, x, k: int = 6, which: str = "SA"):
     """The ``k`` extreme eigenvalues of the Hessian of F at ``x``
-    (which='SA' = smallest algebraic; 'LA' = largest). Matrix-free Lanczos."""
+    (which='SA' = smallest algebraic; 'LA' = largest). Matrix-free Lanczos;
+    where Lanczos cannot run (k reaching N, and eigsh raised for N <= 2)
+    the Hessian is formed densely and diagonalised exactly."""
+    N = int(onp.asarray(x).shape[0])
+    k_eff = min(k, N)
+    if k_eff >= N - 1:                                  # dense: exact, tiny N
+        H = jax.jacfwd(jax.grad(F))(jnp.asarray(x, dtype=float))
+        vals = onp.sort(onp.linalg.eigvalsh(onp.asarray(H)))
+        return vals[:k_eff] if which == "SA" else vals[N - k_eff:]
     from scipy.sparse.linalg import LinearOperator, eigsh   # lazy: optional dep
     hvp = hessian_vector_product(F, x)
-    N = int(onp.asarray(x).shape[0])
     A = LinearOperator((N, N),
                        matvec=lambda v: onp.asarray(hvp(jnp.asarray(v))), dtype=float)
-    vals = eigsh(A, k=min(k, N - 2), which=which, return_eigenvectors=False)
+    vals = eigsh(A, k=k_eff, which=which, return_eigenvectors=False)
     return onp.sort(onp.asarray(vals))
 
 
@@ -49,5 +56,13 @@ def smallest_eigenvalue(F, x) -> float:
 
 def morse_index(F, x, k: int = 8) -> int:
     """Number of negative Hessian eigenvalues (0 = minimum, 1 = saddle /
-    transition state)."""
-    return int((hessian_spectrum(F, x, k=k, which="SA") < 0).sum())
+    transition state). If every one of the ``k`` computed eigenvalues is
+    negative the true index may exceed k, so k doubles until a non-negative
+    eigenvalue (or the full spectrum) is seen: the count is exact."""
+    N = int(onp.asarray(x).shape[0])
+    kk = min(k, N)
+    while True:
+        vals = hessian_spectrum(F, x, k=kk, which="SA")
+        if (vals >= 0).any() or len(vals) >= N:
+            return int((vals < 0).sum())
+        kk = min(2 * kk, N)

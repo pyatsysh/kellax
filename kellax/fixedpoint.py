@@ -28,7 +28,9 @@ import jax.numpy as jnp
 def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
                       damping: float, m: int = 5, warmup: int = 50,
                       beta: float = 1.0, clamp: float | None = 1e-30):
-    """Solve x = gmap(x). Returns (x, res, iters). `damping` mixes the
+    """Solve x = gmap(x). Returns (x, res, iters), with ``res`` the residual
+    of the returned ``x`` itself. States are flat vectors: flatten a field
+    before solving and reshape after. `damping` mixes the
     Picard warm-up; `beta` is the Anderson mixing (~1: the least-squares
     extrapolation supplies the stability that warm-up damping supplied);
     `clamp` floors each iterate (None: no floor, signed states allowed)."""
@@ -53,7 +55,7 @@ def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
 
         x, k, res = jax.lax.while_loop(
             cond, body, (x0, 0, jnp.asarray(jnp.inf)))
-        return x, res, k
+        return x, jnp.max(jnp.abs(gmap(x) - x)), k     # res of the returned x
 
     def cond(c):
         x, dX, dF, f_prev, x_prev, k, res, res_prev, k_restart = c
@@ -100,4 +102,4 @@ def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
         cond, body,
         (x0, z, z, jnp.zeros(N), x0, 0, jnp.asarray(jnp.inf),
          jnp.asarray(jnp.inf), -m - 1))
-    return x, res, k
+    return x, jnp.max(jnp.abs(gmap(x) - x)), k         # res of the returned x

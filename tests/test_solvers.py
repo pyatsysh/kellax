@@ -107,3 +107,70 @@ def test_ift_injection_dense_and_matrixfree():
     solve = lambda mv, b: gmres(mv, b, tol=1e-13, atol=1e-13)[0]
     g_mf = jax.grad(lambda th: jnp.sum(xstar_of(th, solve)))(theta)
     assert abs(float(g_mf) - float(2 * theta * jnp.sum(c))) < 1e-8
+
+
+def test_newton_krylov_preconditioned():
+    """An exactly normalised inverse Laplacian used to silence gmres at the
+    first iterate (zero step, stalled line search, converged=False): the
+    forcing now lives in the preconditioned norm, so the solve must converge
+    and match the unpreconditioned solution."""
+    N = 200
+    h = 1.0 / (N + 1)
+
+    def residual(u):
+        up = jnp.concatenate([u[1:], jnp.zeros(1)])
+        um = jnp.concatenate([jnp.zeros(1), u[:-1]])
+        return (um - 2.0 * u + up) / h ** 2 + jnp.exp(u)
+
+    eig = jnp.asarray((2.0 * onp.cos(onp.arange(1, N + 1) * onp.pi / (N + 1))
+                       - 2.0) / h ** 2)
+
+    def dst1(v):
+        ext = jnp.concatenate([jnp.zeros(1), v, jnp.zeros(1), -v[::-1]])
+        return -jnp.fft.rfft(ext).imag[1:N + 1]
+
+    precond = lambda v: dst1(dst1(v) / eig) / (2.0 * (N + 1))
+    x, res, k, ok = newton_krylov(residual, jnp.zeros(N), precond=precond,
+                                  tol=1e-10)
+    assert ok and res < 1e-10
+    x0, res0, k0, ok0 = newton_krylov(residual, jnp.zeros(N), tol=1e-10)
+    assert ok0
+    assert float(jnp.max(jnp.abs(x - x0))) < 1e-8
+    assert k <= k0                                  # the preconditioner helps
+
+
+def test_bordered_preconditioned():
+    """make_step_bordered with the exact block inverse of a stiff diagonal
+    system: |Minv b| ~ |b|/100, the regime where the old raw-norm tolerance
+    silenced gmres. The step must move and the solve must converge."""
+    K = 24
+    a = jnp.linspace(1.0, 2.0, K)
+    residual = lambda x, lam: 100.0 * (a * x - lam)
+    constraint = lambda x: jnp.sum(x) / K - 1.0
+    lam_exact = K / float(jnp.sum(1.0 / a))
+    step = make_step_bordered(residual, constraint, lambda v: v / (100.0 * a),
+                              dx_max=4.0, restart=40, maxiter=25,
+                              eta_min=1e-6, eta_max=1e-1, ls_max=25)
+    x, lam, trust = jnp.full(K, 0.5), jnp.asarray(0.5), jnp.asarray(4.0)
+    for _ in range(30):
+        x, lam, trust, res, t, ok = step(x, lam, trust)
+        if float(res) < 1e-10:
+            break
+    assert float(res) < 1e-10
+    assert abs(float(lam) - lam_exact) < 1e-8
+    assert float(jnp.max(jnp.abs(x - lam_exact / a))) < 1e-8
+
+
+def test_hessian_small_systems():
+    """Dense fallback where Lanczos cannot run (eigsh crashed for N <= 2),
+    and a Morse index that stays exact when more than k directions are
+    negative (it was silently floored at k)."""
+    F2 = lambda x: 0.5 * (x[0] ** 2 - x[1] ** 2)
+    x2 = jnp.zeros(2)
+    assert abs(smallest_eigenvalue(F2, x2) + 1.0) < 1e-12
+    assert morse_index(F2, x2) == 1
+    F1 = lambda x: 1.5 * x[0] ** 2
+    assert abs(smallest_eigenvalue(F1, jnp.zeros(1)) - 3.0) < 1e-12
+    a = jnp.concatenate([-jnp.linspace(1.0, 2.0, 10), jnp.asarray([0.5, 1.0])])
+    F12 = lambda x: 0.5 * jnp.sum(a * x * x)
+    assert morse_index(F12, jnp.zeros(12), k=8) == 10
