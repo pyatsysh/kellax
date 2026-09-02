@@ -35,7 +35,7 @@ jobs:
           python-version: "3.12"
       - uses: astral-sh/setup-uv@v5
       - name: Install (with examples extras)
-        run: uv pip install --system -e ".[examples]"
+        run: uv pip install --system -e ".[examples,spectra]"   # allen_cahn needs the Lanczos path
       - name: Run every example (must exit 0 and regenerate its figure)
         env:
           MPLBACKEND: Agg

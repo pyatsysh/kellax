@@ -12,8 +12,15 @@ dependencies = [
 
 [project.optional-dependencies]
 examples = ["matplotlib>=3.7"]          # figures for examples/ and book/
-test = ["pytest>=7"]
-dev = ["matplotlib>=3.7", "pytest>=7"]
+spectra = ["scipy>=1.10"]               # Lanczos in kellax.hessian; see below
+test = ["pytest>=7", "scipy>=1.10"]
+dev = ["matplotlib>=3.7", "pytest>=7", "scipy>=1.10"]
+
+# scipy is declared rather than assumed. kellax imports it lazily, in
+# kellax.hessian only, so the core install stays numpy + jax; but jax has
+# always happened to pull scipy in as a hard dependency of its own, which
+# meant the spectrum functions and their tests passed on borrowed weight and
+# would have broken the day jax dropped it, with nothing of ours having moved.
 
 [project.urls]
 Repository = "https://github.com/pyatsysh/kellax"
