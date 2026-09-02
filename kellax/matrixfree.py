@@ -34,12 +34,9 @@ Armijo line search, a trust region on the step. See Knoll & Keyes (2004).
 import jax
 import jax.numpy as np
 import numpy as onp
-from jax.scipy.sparse.linalg import gmres
 
+from ._krylov import ARMIJO, backtrack, forced_gmres, tree_l2, trust_update
 from .keller import Branch
-
-_TRUST_MAX = 64.0
-_ARMIJO = 1e-4
 
 # 2Do: expose the converged (x, p) -> branch map to implicit differentiation
 # (jax.custom_vjp on the bordered solve) — the differentiable-continuation
@@ -70,19 +67,9 @@ def _make_step(residual, precond, restart, maxiter, eta_min, eta_max, ls_max,
         m0 = np.sqrt(np.vdot(R, R) + ph * ph)
         res0 = np.maximum(np.max(np.abs(R)), np.abs(ph))
         eta = np.clip(np.sqrt(res0), eta_min, eta_max)    # Eisenstat-Walker
-        # gmres tests the PREconditioned residual against tol*|b| of the raw
-        # rhs, so a good Minv (|Minv b| << |b|) "converges" at iterate 0 and
-        # returns a zero step. State the forcing in the preconditioned norm:
-        # tol = 0 and atol = eta * |Minv b|, which reduces to the old
-        # tol = eta when precond is None and is invariant to scaling Minv.
-        b = (-R, -ph)
-        bM = b if Mb is None else Mb(b)
-        b_nrm = np.sqrt(np.vdot(bM[0], bM[0]) + bM[1] * bM[1])
-        d, _ = gmres(jvp, b, x0 = (np.zeros_like(x), np.zeros_like(p)),
-                     M = Mb, tol = 0.0, atol = eta * b_nrm, restart = restart,
-                     maxiter = maxiter, solve_method = "batched")
-        dx = np.where(np.isfinite(d[0]), d[0], 0.0)
-        dp = np.where(np.isfinite(d[1]), d[1], 0.0)
+        dx, dp = forced_gmres(jvp, (-R, -ph), Mb, eta,
+                              (np.zeros_like(x), np.zeros_like(p)),
+                              restart, maxiter)
         raw = np.maximum(np.max(np.abs(dx)), np.abs(dp))
         s = np.minimum(1.0, trust / (raw + 1e-300))       # trust-region clip
         dx, dp = dx * s, dp * s
@@ -93,26 +80,19 @@ def _make_step(residual, precond, restart, maxiter, eta_min, eta_max, ls_max,
             ph2 = w * np.vdot(tx, xx - x0) + tp * (pp - p0) - ds
             return R2, ph2
 
-        def cond(c):
-            t, (r, rc), k = c
-            return (k < ls_max) & ~(np.sqrt(np.vdot(r, r) + rc * rc)
-                                    <= (1.0 - _ARMIJO * t) * m0)
-
-        def body(c):
-            t, _, k = c
-            t = 0.5 * t
-            return t, merit(t), k + 1
-
-        t, (r, rc), _ = jax.lax.while_loop(cond, body, (1.0, merit(1.0), 0))
-        ok = np.sqrt(np.vdot(r, r) + rc * rc) <= (1.0 - _ARMIJO * t) * m0
+        t, (r, rc), _ = backtrack(merit, tree_l2, m0, ls_max)
+        ok = tree_l2((r, rc)) <= (1.0 - ARMIJO * t) * m0
         x_new = np.where(ok, x + t * dx, x)
         p_new = np.where(ok, p + t * dp, p)
+        # the residual reported is R alone, NOT max(|R|, |phase|): the corrector
+        # tests it against newton_tol and the dense engine tests the same thing
+        # (keller.py, inside its corrector), so the two engines agree on what
+        # convergence means. This is the one thing that stops the step being
+        # delegated wholesale to newton_krylov.make_step_bordered, which folds
+        # the constraint into its reported residual.
         resR = np.where(ok, np.max(np.abs(r)), np.max(np.abs(R)))
-        trust_new = np.where(ok & (t >= 1.0) & (raw > trust),
-                             np.minimum(trust * 2.0, _TRUST_MAX),
-                             np.where(t < 1.0, np.maximum(trust * 0.5, dx_max),
-                                      trust))
-        return x_new, p_new, resR, t, ok, trust_new
+        return x_new, p_new, resR, t, ok, trust_update(trust, ok, t,
+                                                       raw > trust, dx_max)
 
     return step
 
@@ -130,14 +110,11 @@ def _make_tangent(residual, precond, restart, maxiter, w):
             vx, vp = u
             return (jvp((vx, vp)), w * np.vdot(tx0, vx) + tp0 * vp)
 
-        b = (np.zeros_like(x), np.ones_like(p))
-        bM = b if Mb is None else Mb(b)               # same preconditioned-norm
-        b_nrm = np.sqrt(np.vdot(bM[0], bM[0]) + bM[1] * bM[1])   # forcing as in
-        sol, _ = gmres(op, b,                                     # _make_step
-                       x0 = (np.zeros_like(x), np.zeros_like(p)), M = Mb,
-                       tol = 0.0, atol = 1e-8 * b_nrm, restart = restart,
-                       maxiter = maxiter, solve_method = "batched")
-        tx, tp = sol
+        tx, tp = forced_gmres(op, (np.zeros_like(x), np.ones_like(p)), Mb,
+                              1e-8,                   # fixed tight forcing: the
+                              (np.zeros_like(x), np.zeros_like(p)),  # tangent
+                              restart, maxiter)       # is not an inexact-Newton
+                                                      # step and has no eta
         nrm = np.sqrt(w * np.vdot(tx, tx) + tp * tp)
         tx, tp = tx / nrm, tp / nrm
         sgn = np.sign(w * np.vdot(tx, tx0) + tp * tp0)

@@ -16,47 +16,38 @@ Krylov space (the textbook Schur split forms b ~ J^{-1}1 explicitly, which
 blows up along a soft mode and cancels catastrophically; the calibration
 case was a near-critical droplet's volume mode).
 
-Note: ``matrixfree.arclength_continuation`` carries its own copy of this
-step pattern with the arclength phase condition baked in (same _TRUST_MAX /
-_ARMIJO conventions); delegating it through ``make_step_bordered`` is the
-internal-dedup item on the v0.5 review list.
+Note on the sibling engine, and why it is not delegated here.
+``matrixfree.arclength_continuation`` runs the same step pattern with the
+arclength phase condition baked in. Everything mechanical is now shared
+rather than copied: the GMRES forcing, the Armijo backtracking and the trust
+update all come from ``_krylov``. What is left is not duplication but a
+deliberate difference, and routing one through the other would erase it.
+
+  * This step reports ``max(|R|, |constraint|)`` as its residual. The
+    arclength step reports ``|R|`` alone, because its corrector tests that
+    against ``newton_tol`` and the DENSE engine tests the same quantity
+    (inside ``keller.arclength_continuation``'s corrector). The two
+    continuation engines are documented as having identical semantics, and
+    that is the line which makes it true.
+  * ``constraint`` here is a function of x only. An arclength phase condition
+    reads the parameter as well, so delegating would mean broadening this
+    signature for a single internal caller.
+
+So the v0.5 review's internal-dedup item is closed as "shared what is common,
+kept what differs on purpose" rather than by delegation.
 """
 from __future__ import annotations
 
 from typing import Callable
 
 import jax
-import jax.numpy as jnp
-from jax.scipy.sparse.linalg import gmres
+import jax.numpy as np
 
-_ARMIJO = 1e-4
-_TRUST_MAX = 64.0
+from ._krylov import ARMIJO as _ARMIJO, backtrack, forced_gmres, trust_update
 
 
 def _l2(*rs):
-    return jnp.sqrt(sum(jnp.sum(r * r) for r in rs))
-
-
-def _gmres(jvp, b, Minv, eta, x0, restart, maxiter):
-    # gmres tests the PREconditioned residual against tol*|b| of the raw rhs,
-    # so a well-normalised Minv (|Minv b| << |b|) "converges" at iterate 0
-    # and returns a zero step. State the forcing in the preconditioned norm:
-    # tol = 0 and atol = eta * |Minv b|, which reduces to the old tol = eta
-    # when Minv is None and is invariant to scaling Minv.
-    bM = b if Minv is None else Minv(b)
-    d, _ = gmres(jvp, b, x0=x0, M=Minv, tol=0.0, atol=eta * _l2(bM),
-                 restart=restart, maxiter=maxiter, solve_method="batched")
-    return jnp.where(jnp.isfinite(d), d, 0.0)          # Krylov breakdown guard
-
-
-def _trust_update(trust, ok, t, capped, dx_max):
-    """Adaptive trust radius: a clean full step that hit the cap doubles it
-    (an exactly-linear far field is walked in O(log) steps instead of
-    crawling), a backtrack halves it (never below the configured dx_max)."""
-    return jnp.where(ok & (t >= 1.0) & capped,
-                     jnp.minimum(trust * 2.0, _TRUST_MAX),
-                     jnp.where(t < 1.0, jnp.maximum(trust * 0.5, dx_max),
-                               trust))
+    return np.sqrt(sum(np.sum(r * r) for r in rs))
 
 
 def make_step(residual, Minv, *, dx_max, restart, maxiter, eta_min, eta_max,
@@ -68,27 +59,18 @@ def make_step(residual, Minv, *, dx_max, restart, maxiter, eta_min, eta_max,
     def step(x, trust, *args):
         R, jvp = jax.linearize(lambda xx: residual(xx, *args), x)
         m0 = _l2(R)
-        res0 = jnp.max(jnp.abs(R))
-        eta = jnp.clip(jnp.sqrt(res0), eta_min, eta_max)
-        d = _gmres(jvp, -R, Minv, eta, jnp.zeros_like(x), restart, maxiter)
-        raw = jnp.max(jnp.abs(d))
-        d = d * jnp.minimum(1.0, trust / (raw + 1e-300))
+        res0 = np.max(np.abs(R))
+        eta = np.clip(np.sqrt(res0), eta_min, eta_max)
+        d = forced_gmres(jvp, -R, Minv, eta, np.zeros_like(x), restart, maxiter)
+        raw = np.max(np.abs(d))
+        d = d * np.minimum(1.0, trust / (raw + 1e-300))
 
-        def cond(c):
-            t, r, k = c
-            return (k < ls_max) & ~(_l2(r) <= (1.0 - _ARMIJO * t) * m0)
-
-        def body(c):
-            t, _, k = c
-            t = 0.5 * t
-            return t, residual(x + t * d, *args), k + 1
-
-        t, r, _ = jax.lax.while_loop(cond, body,
-                                     (1.0, residual(x + d, *args), 0))
+        t, r, _ = backtrack(lambda tt: residual(x + tt * d, *args), _l2,
+                            m0, ls_max)
         ok = _l2(r) <= (1.0 - _ARMIJO * t) * m0        # NaN-safe: NaN -> False
-        x_new = jnp.where(ok, x + t * d, x)
-        res = jnp.where(ok, jnp.max(jnp.abs(r)), res0)
-        return x_new, _trust_update(trust, ok, t, raw > trust, dx_max), res, t, ok
+        x_new = np.where(ok, x + t * d, x)
+        res = np.where(ok, np.max(np.abs(r)), res0)
+        return x_new, trust_update(trust, ok, t, raw > trust, dx_max), res, t, ok
 
     return step
 
@@ -108,39 +90,25 @@ def make_step_bordered(residual, constraint, Minv, *, dx_max, restart,
     def step(x, lam, trust, *args):
         (R, Rc), jvp = jax.linearize(lambda u: joint(u, *args), (x, lam))
         m0 = _l2(R, Rc)
-        res0 = jnp.maximum(jnp.max(jnp.abs(R)), jnp.abs(Rc))
-        eta = jnp.clip(jnp.sqrt(res0), eta_min, eta_max)
-        rhs = (-R, -Rc)
-        rhsM = rhs if Mb is None else Mb(rhs)          # preconditioned-norm
-        d, _ = gmres(jvp, rhs,                         # forcing, as in _gmres
-                     x0=(jnp.zeros_like(x), jnp.zeros_like(lam)), M=Mb,
-                     tol=0.0, atol=eta * _l2(rhsM[0], rhsM[1]),
-                     restart=restart, maxiter=maxiter, solve_method="batched")
-        dx = jnp.where(jnp.isfinite(d[0]), d[0], 0.0)
-        dlam = jnp.where(jnp.isfinite(d[1]), d[1], 0.0)
-        raw = jnp.maximum(jnp.max(jnp.abs(dx)), jnp.abs(dlam))
-        s = jnp.minimum(1.0, trust / (raw + 1e-300))
+        res0 = np.maximum(np.max(np.abs(R)), np.abs(Rc))
+        eta = np.clip(np.sqrt(res0), eta_min, eta_max)
+        dx, dlam = forced_gmres(jvp, (-R, -Rc), Mb, eta,
+                                (np.zeros_like(x), np.zeros_like(lam)),
+                                restart, maxiter)
+        raw = np.maximum(np.max(np.abs(dx)), np.abs(dlam))
+        s = np.minimum(1.0, trust / (raw + 1e-300))
         dx, dlam = dx * s, dlam * s
 
         def merit_state(t):
             return (residual(x + t * dx, lam + t * dlam, *args),
                     constraint(x + t * dx, *args))
 
-        def cond(cst):
-            t, (r, rc), k = cst
-            return (k < ls_max) & ~(_l2(r, rc) <= (1.0 - _ARMIJO * t) * m0)
-
-        def body(cst):
-            t, _, k = cst
-            t = 0.5 * t
-            return t, merit_state(t), k + 1
-
-        t, (r, rc), _ = jax.lax.while_loop(cond, body, (1.0, merit_state(1.0), 0))
+        t, (r, rc), _ = backtrack(merit_state, lambda rs: _l2(*rs), m0, ls_max)
         ok = _l2(r, rc) <= (1.0 - _ARMIJO * t) * m0    # NaN-safe
-        x_new = jnp.where(ok, x + t * dx, x)
-        lam_new = jnp.where(ok, lam + t * dlam, lam)
-        res = jnp.where(ok, jnp.maximum(jnp.max(jnp.abs(r)), jnp.abs(rc)), res0)
-        return (x_new, lam_new, _trust_update(trust, ok, t, raw > trust, dx_max),
+        x_new = np.where(ok, x + t * dx, x)
+        lam_new = np.where(ok, lam + t * dlam, lam)
+        res = np.where(ok, np.maximum(np.max(np.abs(r)), np.abs(rc)), res0)
+        return (x_new, lam_new, trust_update(trust, ok, t, raw > trust, dx_max),
                 res, t, ok)
 
     return step
@@ -157,12 +125,12 @@ def newton_krylov(residual, x0, *, precond: Callable = None, tol: float = 1e-10,
     inverse-Jacobian callable (e.g. a spectral symbol built by probing the
     linearised operator).
     """
-    step = make_step(residual, precond, dx_max=dx_max, restart=restart,
-                     maxiter=maxiter, eta_min=eta_min, eta_max=eta_max,
-                     ls_max=ls_max)
-    x = jnp.asarray(x0)
-    trust = jnp.asarray(dx_max, dtype=x.dtype)
-    res = float(jnp.max(jnp.abs(residual(x))))
+    step = make_step(residual, precond, dx_max = dx_max, restart = restart,
+                     maxiter = maxiter, eta_min = eta_min, eta_max = eta_max,
+                     ls_max = ls_max)
+    x = np.asarray(x0)
+    trust = np.asarray(dx_max, dtype = x.dtype)
+    res = float(np.max(np.abs(residual(x))))
     for k in range(max_newton):
         if res < tol:
             return x, res, k, True

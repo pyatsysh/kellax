@@ -26,9 +26,12 @@ implicit differentiation of the converged Moore-Spence system. v0.5 (consolidati
 (``make_step_bordered``: mass constraints, phase conditions), autodiff-
 Hessian spectra (``hessian_spectrum``, matrix-free Lanczos; scipy lazily),
 and ``ift_injection`` (differentiable solutions by the implicit-function
-theorem, dense or Krylov-adjoint). Roadmap: periodic-orbit continuation
-from Hopf points; delegate matrixfree's arclength step through
-``make_step_bordered`` (internal dedup).
+theorem, dense or Krylov-adjoint). The internal-dedup item on the v0.5
+review list is closed: forcing, backtracking and the trust update are shared
+through ``_krylov``, and the wholesale delegation of matrixfree's step
+through ``make_step_bordered`` is deliberately NOT done — the two engines
+report different residuals on purpose (see the newton_krylov docstring).
+Roadmap: periodic-orbit continuation from Hopf points.
 """
 from .keller import Branch, arclength_continuation, newton
 from .fixedpoint import fixed_point_solve

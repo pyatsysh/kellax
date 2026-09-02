@@ -36,10 +36,10 @@ import jax.numpy as np
 import numpy as onp
 
 # 2Do:
-# 1. branch switching at simple bifurcation points (second null vector of
-#    the bordered matrix gives the bifurcating tangent)
-# 2. lax.scan the accepted-step loop so the whole trace jits end-to-end
+# 1. lax.scan the accepted-step loop so the whole trace jits end-to-end
 #    (each step is already jitted; the Python loop only orchestrates)
+# (branch switching at simple bifurcation points was item 1 here; it shipped
+#  in 0.4.0 as branch_off / branching.py and the note outlived the work)
 
 
 @dataclass

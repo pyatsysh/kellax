@@ -24,11 +24,11 @@ applies the same principle to a converged Moore-Spence system.
 from __future__ import annotations
 
 import jax
-import jax.numpy as jnp
+import jax.numpy as np
 
 
-def ift_injection(residual, x_star, params, linear_solve=None,
-                  transpose_solve=None):
+def ift_injection(residual, x_star, params, linear_solve = None,
+                  transpose_solve = None):
     """Return x* with the exact d x*/d params attached (value unchanged).
 
     ``residual(x, params)`` must vanish at the converged ``x_star``.
@@ -41,12 +41,12 @@ def ift_injection(residual, x_star, params, linear_solve=None,
 
     if linear_solve is None:
         J = jax.jacobian(lambda r: residual(r, p_sg))(x)
-        delta = jnp.linalg.solve(jax.lax.stop_gradient(J), R)
+        delta = np.linalg.solve(jax.lax.stop_gradient(J), R)
     else:
         def Jv(v):
             return jax.jvp(lambda q: residual(q, p_sg), (x,), (v,))[1]
 
         delta = jax.lax.custom_linear_solve(
-            Jv, R, solve=linear_solve,
-            transpose_solve=(transpose_solve or linear_solve))
+            Jv, R, solve = linear_solve,
+            transpose_solve = (transpose_solve or linear_solve))
     return x - delta

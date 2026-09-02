@@ -22,7 +22,7 @@ Ornstein-Zernike gamma iteration), where a floor would corrupt the map.
 from __future__ import annotations
 
 import jax
-import jax.numpy as jnp
+import jax.numpy as np
 
 
 def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
@@ -39,7 +39,7 @@ def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
     m = int(m)
 
     def _floor(v):
-        return v if clamp is None else jnp.maximum(v, clamp)
+        return v if clamp is None else np.maximum(v, clamp)
 
     if m == 0:
         def cond(c):
@@ -49,13 +49,13 @@ def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
         def body(c):
             x, k, _ = c
             g = gmap(x)
-            res = jnp.max(jnp.abs(g - x))
+            res = np.max(np.abs(g - x))
             x = _floor((1.0 - a) * x + a * g)
             return x, k + 1, res
 
         x, k, res = jax.lax.while_loop(
-            cond, body, (x0, 0, jnp.asarray(jnp.inf)))
-        return x, jnp.max(jnp.abs(gmap(x) - x)), k     # res of the returned x
+            cond, body, (x0, 0, np.asarray(np.inf)))
+        return x, np.max(np.abs(gmap(x) - x)), k     # res of the returned x
 
     def cond(c):
         x, dX, dF, f_prev, x_prev, k, res, res_prev, k_restart = c
@@ -65,21 +65,21 @@ def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
         x, dX, dF, f_prev, x_prev, k, _, res_prev, k_restart = c
         g = gmap(x)
         f = g - x                                     # residual
-        res = jnp.max(jnp.abs(f))
+        res = np.max(np.abs(f))
 
         # SAFEGUARD: a growing residual means the last extrapolation misfired
         # (e.g. an effectively-undamped step on a stiff map) — flush the
         # history and fall back to damped Picard while it refills.
         grew = res > 1.5 * res_prev
-        k_restart = jnp.where(grew, k, k_restart)
+        k_restart = np.where(grew, k, k_restart)
 
         # update circular difference history (skip the very first iterate)
         slot = (k - 1) % m
         have_prev = (k > 0) & ~grew
-        dX = jnp.where(grew, jnp.zeros_like(dX),
-                       jnp.where(have_prev, dX.at[slot].set(x - x_prev), dX))
-        dF = jnp.where(grew, jnp.zeros_like(dF),
-                       jnp.where(have_prev, dF.at[slot].set(f - f_prev), dF))
+        dX = np.where(grew, np.zeros_like(dX),
+                       np.where(have_prev, dX.at[slot].set(x - x_prev), dX))
+        dF = np.where(grew, np.zeros_like(dF),
+                       np.where(have_prev, dF.at[slot].set(f - f_prev), dF))
 
         # plain damped step
         x_picard = (1.0 - a) * x + a * g
@@ -88,18 +88,18 @@ def fixed_point_solve(gmap, x0, tol: float, max_steps: int,
         # regularisation so a small history cannot degenerate the step into
         # undamped Picard (gamma -> 0 with an absolute lambda would).
         A = dF @ dF.T
-        lam = 1e-10 * (jnp.trace(A) / m) + 1e-300
-        gamma = jnp.linalg.solve(A + lam * jnp.eye(m), dF @ f)
+        lam = 1e-10 * (np.trace(A) / m) + 1e-300
+        gamma = np.linalg.solve(A + lam * np.eye(m), dF @ f)
         x_aa = x + beta * f - (dX + beta * dF).T @ gamma
 
         # AA only after warm-up AND once the history has refilled post-restart
         use_aa = (k >= warmup) & (k - k_restart > m) & ~grew
-        x_new = _floor(jnp.where(use_aa, x_aa, x_picard))
+        x_new = _floor(np.where(use_aa, x_aa, x_picard))
         return x_new, dX, dF, f, x, k + 1, res, res, k_restart
 
-    z = jnp.zeros((m, N))
+    z = np.zeros((m, N))
     x, _, _, _, _, k, res, _, _ = jax.lax.while_loop(
         cond, body,
-        (x0, z, z, jnp.zeros(N), x0, 0, jnp.asarray(jnp.inf),
-         jnp.asarray(jnp.inf), -m - 1))
-    return x, jnp.max(jnp.abs(gmap(x) - x)), k         # res of the returned x
+        (x0, z, z, np.zeros(N), x0, 0, np.asarray(np.inf),
+         np.asarray(np.inf), -m - 1))
+    return x, np.max(np.abs(gmap(x) - x)), k         # res of the returned x
