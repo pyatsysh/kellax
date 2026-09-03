@@ -485,7 +485,7 @@ dp                                                        <span class="c"># d(fo
 </section>
 
 <section id="toolbox">
-  <h2>The toolbox <span style="font-size:0.55em; color:var(--muted);">v0.4.0</span></h2>
+  <h2>The toolbox <span style="font-size:0.55em; color:var(--muted);">v0.5.0</span></h2>
   <dl class="toolbox">
     <dt>arclength_continuation</dt>
     <dd>The dense Keller trace with adaptive steps and fold detection. Returns a
@@ -515,6 +515,25 @@ dp                                                        <span class="c"># d(fo
         implicit differentiation of the converged Moore&ndash;Spence system.</dd>
     <dt>bordered_newton&ensp;/&ensp;newton</dt>
     <dd>The generic (N+k) bordered primitive and plain Newton for seeding.</dd>
+  </dl>
+
+  <h3 style="margin-top:2rem;">The inner solvers <span style="font-size:0.62em; color:var(--muted);">new in v0.5.0</span></h3>
+  <p style="max-width:62ch; color:var(--muted);">What the continuation layer stands on, arrived from the
+     classical-DFT programme kellax was extracted from. Useful on their own wherever the problem is a
+     large nonlinear system rather than a branch.</p>
+  <dl class="toolbox">
+    <dt>fixed_point_solve</dt>
+    <dd>Damped Picard with an Anderson/DIIS globaliser, for self-consistent maps.</dd>
+    <dt>newton_krylov&ensp;/&ensp;make_step_bordered</dt>
+    <dd>Inexact Newton&ndash;Krylov with preconditioned GMRES on <code>jax.linearize</code> JVPs, a trust
+        cap and a NaN-safe Armijo search. The bordered factory carries a scalar constraint (mass, a
+        phase condition) through one GMRES on the joint system, so the border row regularises a
+        near-null mode inside the Krylov space.</dd>
+    <dt>hessian_spectrum&ensp;/&ensp;smallest_eigenvalue&ensp;/&ensp;morse_index</dt>
+    <dd>Autodiff Hessian spectra by matrix-free Lanczos: the stability and Morse index of a scalar
+        objective without ever forming H. Needs the <code>spectra</code> extra.</dd>
+    <dt>ift_injection</dt>
+    <dd>Differentiable solutions by the implicit-function theorem, dense or Krylov-adjoint.</dd>
   </dl>
 </section>
 
@@ -552,7 +571,7 @@ dp                                                        <span class="c"># d(fo
 
 <section id="book">
   <h2>The book</h2>
-  <p><em>kellax by solved problems</em>: nine chapters, each a single worked problem. Each
+  <p><em>kellax by solved problems</em>: eleven chapters, each a single worked problem. Each
      chapter's script lives in
      <a href="https://github.com/pyatsysh/kellax/tree/main/examples">examples/</a> and
      regenerates its figure; the printed numbers are real output. The
@@ -568,6 +587,8 @@ dp                                                        <span class="c"># d(fo
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/07-predator-prey.md">A predator&ndash;prey fold pair</a><span class="what">folds matched to MatCont</span></li>
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/08-bratu-2d.md">Bratu in 2-D</a><span class="what">matrix-free in two dimensions</span></li>
     <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/09-differentiable.md">Differentiable continuation</a><span class="what">gradients of the fold location</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/10-lorenz.md">The Lorenz equilibria</a><span class="what">a pitchfork and a Hopf</span></li>
+    <li><a href="https://github.com/pyatsysh/kellax/blob/main/book/11-inner-solvers.md">The inner solvers</a><span class="what">transition state and Morse index</span></li>
   </ol>
 </section>
 

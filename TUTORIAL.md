@@ -73,6 +73,11 @@ The whole of the API fits in the table below.
 | `branch_off(R, x_bp, p_bp)` | jump onto the bifurcating branch at a simple branch point | `[(x, p)…]` seeds |
 | `bifurcation_diagram(R, x0, p0, max_depth=)` | trace → classify → switch → recurse (equilibria) | `[DiagramBranch…]` |
 | `fold_sensitivity(R3, x0, p0, theta0)` | fold location AND its exact gradient d p*/d theta | `(x, p, v, dp, res)` |
+| `fixed_point_solve(gmap, x0, tol, max_steps, damping, …)` | damped Picard with an Anderson/DIIS globaliser | `(x, res, k)` |
+| `newton_krylov(R, x0, precond=)` | inexact Newton–Krylov, Jacobian never formed | `(x, res, k, converged)` |
+| `make_step` / `make_step_bordered(R, constraint, Minv, …)` | one Newton–Krylov step, unconstrained / with a scalar constraint | a jitted step closure |
+| `hessian_spectrum(F, x, k=6, which=)` / `smallest_eigenvalue(F, x)` / `morse_index(F, x, k=8)` | autodiff Hessian spectra, matrix-free Lanczos | eigenvalues / float / int |
+| `ift_injection(R, x_star, params, …)` | make a converged solution differentiable (implicit-function theorem) | `x` carrying the gradient |
 
 The continuation drivers share their optional arguments. The initial step is
 `ds`. The bounds `ds_min` and `ds_max` limit the adaptive step and `n_steps`
@@ -91,6 +96,17 @@ bifurcating branch at a simple branch point. The driver `bifurcation_diagram`
 composes these steps into a recursive trace of the equilibria. Finally,
 `fold_sensitivity` returns the location of a fold together with its exact
 gradient with respect to the parameters of the model.
+
+The last five rows are the inner solvers, added in v0.5.0. They are what the
+continuation drivers stand on, and they are useful on their own whenever the
+problem is a large nonlinear system rather than a branch. Use
+`fixed_point_solve` for a self-consistent map and `newton_krylov` when the
+Jacobian is too large to form. The factory `make_step_bordered` carries a
+scalar constraint such as a fixed mass or a phase condition through a single
+GMRES on the joint system. The spectrum functions give the stability and the
+Morse index of a scalar objective without ever forming its Hessian, and they
+need the `spectra` extra. The call `ift_injection` makes a converged solution
+differentiable by the implicit-function theorem.
 
 ## Sharpen a fold
 
@@ -154,6 +170,10 @@ and [the cusp](book/02-the-cusp.md). Continue to
 ends with [snaking](book/05-snaking.md). Then come the applied problems:
 [CSTR hysteresis](book/06-cstr.md), [predator–prey](book/07-predator-prey.md),
 and [2-D Bratu](book/08-bratu-2d.md). Each of them is a runnable script in
-[`examples/`](examples) that regenerates its figure. Finally,
+[`examples/`](examples) that regenerates its figure. Then
 [differentiable continuation](book/09-differentiable.md) computes the exact
-gradient of a located fold.
+gradient of a located fold. The last two chapters leave the fold behind:
+[the Lorenz equilibria](book/10-lorenz.md) works the classification layer on a
+pitchfork and a Hopf, and [the inner solvers](book/11-inner-solvers.md) drops
+below the continuation engines to the fixed-point, Newton–Krylov, Hessian and
+implicit-function machinery they stand on.

@@ -76,7 +76,7 @@ the fold acquires an exact gradient: a model can be optimised or learned
 against its own bifurcation diagram. The whole predictor–corrector
 jit-compiles and runs unchanged on CPU or GPU, in float64 throughout.
 
-## The toolbox (v0.4.0)
+## The toolbox (v0.5.0)
 
 - `arclength_continuation`: the dense Keller trace with adaptive steps and
   fold detection. Returns a `Branch` (states, parameters, tangents, turning
@@ -105,6 +105,23 @@ jit-compiles and runs unchanged on CPU or GPU, in float64 throughout.
 - `bordered_newton` / `newton`: the generic (N+k) bordered primitive and
   plain Newton for seeding.
 
+Underneath the continuation layer sit the inner solvers, which arrived in
+v0.5.0 from the classical-DFT programme kellax was extracted from. They are
+useful on their own, wherever the problem is a large nonlinear system rather
+than a branch:
+
+- `fixed_point_solve`: damped Picard with an Anderson/DIIS globaliser, for
+  self-consistent maps.
+- `newton_krylov`: inexact Newton–Krylov with preconditioned GMRES on
+  `jax.linearize` JVPs, a trust cap and a NaN-safe Armijo search.
+  `make_step_bordered` carries a scalar constraint (mass, a phase condition)
+  through one GMRES on the joint system.
+- `hessian_spectrum` / `smallest_eigenvalue` / `morse_index`: autodiff Hessian
+  spectra by matrix-free Lanczos, so stability and the Morse index of a scalar
+  objective come without ever forming H. Needs the `spectra` extra.
+- `ift_injection`: differentiable solutions by the implicit-function theorem,
+  dense or Krylov-adjoint.
+
 Every claim above is validated against an exact result or the literature. The
 cubic folds are recovered to 1e-10 and the two-parameter fold law to 1e-8. The
 fold gradient matches the closed-form law d p*/d theta = sqrt(theta/3) to
@@ -114,17 +131,22 @@ x^2 = p to 1e-8. Bratu ignition is reproduced at lambda* = 3.5138 in 1-D and
 6.808 in 2-D. The CSTR ignition/extinction pair sits at the Uppal–Ray–Poore
 values and its fold-curve tangents are reproduced by autodiff. MatCont's
 predator–prey folds are matched to five digits. The snaking branch above
-passes its 38 folds in one continuation.
+passes its 38 folds in one continuation. The Lorenz pitchfork and Hopf are
+recovered at r = 1 and r = 470/19 with the frequency to 1e-15, and the
+Allen–Cahn interface energy reproduces the surface-tension law
+(2 sqrt2/3) eps to four digits.
 
 ## The book
 
-[*kellax by solved problems*](book/README.md): nine chapters, each a single
+[*kellax by solved problems*](book/README.md): eleven chapters, each a single
 worked problem: [the fold](book/01-the-fold.md), [the cusp](book/02-the-cusp.md),
 [Bratu–Gelfand](book/03-bratu.md), [matrix-free scaling](book/04-matrix-free.md),
 [homoclinic snaking](book/05-snaking.md), [CSTR hysteresis](book/06-cstr.md),
 [a predator–prey fold pair](book/07-predator-prey.md),
-[Bratu in 2-D](book/08-bratu-2d.md), and
-[differentiable continuation](book/09-differentiable.md). Each chapter's
+[Bratu in 2-D](book/08-bratu-2d.md),
+[differentiable continuation](book/09-differentiable.md),
+[the Lorenz equilibria](book/10-lorenz.md), and
+[the inner solvers](book/11-inner-solvers.md). Each chapter's
 script lives in [`examples/`](examples) and regenerates its figure. The
 printed numbers are real output. The [TUTORIAL](TUTORIAL.md) is the quick tour
 of the API.
@@ -133,8 +155,8 @@ of the API.
 
 ```bash
 uv venv .venv && uv pip install --python .venv/bin/python -e ".[test,examples]"
-.venv/bin/python tests/test_kellax.py && .venv/bin/python tests/test_bifurcations.py
-python examples/cubic_fold.py          # -> figures/cubic_fold.png
+.venv/bin/python -m pytest -q           # 28 tests: continuation, bifurcations, solvers
+python examples/cubic_fold.py           # -> figures/cubic_fold.png
 ```
 
 kellax requires float64: `jax.config.update("jax_enable_x64", True)` once at
