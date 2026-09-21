@@ -74,6 +74,9 @@ drawn from the implicit gradient, lie on the tracked curve:
   analysis provides the research motivation behind kellax, and the present
   chapter marks its first working piece.
 
-This is the last written chapter. The book grows with the example suite, and
-the continuation of periodic orbits from Hopf points forms the next major
-front, as noted in the roadmap of the [README](../README.md).
+The two chapters that follow leave the fold behind. [Chapter 10](10-lorenz.md)
+takes up the structure that fold detection cannot see, and
+[chapter 11](11-inner-solvers.md) goes below the continuation engines to the
+solvers they stand on. The continuation of periodic orbits from Hopf points
+remains the next major front, as noted in the roadmap of the
+[README](../README.md).

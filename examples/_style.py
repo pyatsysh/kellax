@@ -109,13 +109,16 @@ def mark_folds(ax, xf, yf, ms = 8.5, zorder = 6):
             mfc="white", mew=1.9, zorder=zorder, label="_nolegend_")
 
 
-def stability_legend(ax, loc = "best", extra = None):
-    """A stable(solid)/unstable(dashed)/fold legend built from proxy artists."""
+def stability_legend(ax, loc = "best", extra = None, folds = True):
+    """A stable(solid)/unstable(dashed)/fold legend built from proxy artists.
+    Pass folds = False on a diagram that has none, so the key does not
+    advertise a marker the reader will look for and not find."""
     from matplotlib.lines import Line2D
     h = [Line2D([0], [0], color=STABLE_C, lw=2.2, ls="-", label="stable"),
-         Line2D([0], [0], color=UNSTABLE_C, lw=2.2, ls="--", label="unstable"),
-         Line2D([0], [0], color=FOLD_C, marker="o", mfc="white", mew=1.9,
-                ls="none", ms=8.5, label="fold")]
+         Line2D([0], [0], color=UNSTABLE_C, lw=2.2, ls="--", label="unstable")]
+    if folds:
+        h.append(Line2D([0], [0], color=FOLD_C, marker="o", mfc="white", mew=1.9,
+                        ls="none", ms=8.5, label="fold"))
     if extra:
         h.extend(extra)
     ax.legend(handles=h, loc=loc)

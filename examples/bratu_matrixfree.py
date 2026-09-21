@@ -103,8 +103,11 @@ def main():
     ax.set_ylabel(r"$\|u\|_\infty$")
     ax.set_title(rf"Bratu at $N={Nc}$: dense (lines) vs matrix-free (markers)")
     ax.set_xlim(0, 3.9)
-    ax.text(0.05, 5.4, f"matrix-free also traces $N={Nb}$ in {t_b:.0f}s\n"
+    ax.text(0.05, 5.4, f"matrix-free also traces $N={Nb}$\n"
             "(no Jacobian ever formed)", fontsize=9.5, color="#555")
+    # the wall clock for that leg is printed to stdout, not drawn here: it used
+    # to be, and the figure then changed on every run, so a rebuild always
+    # looked like a numerical diff when it was only a busier machine
     stability_legend(ax, loc="center left",
                      extra=[plt.Line2D([0], [0], marker="o", color=ACCENT, mfc="none",
                                        mew=1.3, ls="none", ms=6.5,
