@@ -1,0 +1,22 @@
+# docent configuration for kellax. Human-editable: docent refreshes the
+# detected lists on every map and keeps roots and packages as you set them.
+[repo]
+name = "kellax"
+packages = ["kellax"]  # top-level import names this repo provides
+engine = "graphify"
+
+[boundary]
+# Recursion stops here. A dependency is internal, and gets a graph of its own,
+# only when it resolves to exactly one checkout under one of these roots.
+roots = ["~/projects"]
+internal = []  # resolved on the last map
+third_party = ["jax", "matplotlib", "numpy", "scipy"]  # never graphed; listed for the record
+exclude = []  # yours: names never treated as internal
+
+[boundary.pins]
+# yours: package = "path to its checkout", for anything the roots rule misses
+
+[entrypoints]
+scripts = []
+tests = ["tests/test_*.py"]
+docs = ["README.md", "TUTORIAL.md", "docs"]

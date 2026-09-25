@@ -1,0 +1,15 @@
+{
+  "0": "arclength_continuation",
+  "1": "__init__.py",
+  "2": "book/README.md",
+  "3": "test_solvers.py",
+  "4": "test_kellax.py",
+  "5": "arclength_continuation",
+  "6": "kellax: pseudo-arclength continuation and bifurcation analysis in JAX",
+  "7": "kellax tutorial",
+  "8": "11. The inner solvers: a phase field, its transition state, and the Morse index",
+  "9": "Changelog",
+  "10": "paper.md",
+  "11": "10. The Lorenz equilibria: a pitchfork, and the Hopf that ends it",
+  "12": "kellax"
+}

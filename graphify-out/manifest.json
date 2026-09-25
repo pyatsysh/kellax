@@ -1,0 +1,368 @@
+{
+  "examples/_style.py": {
+    "mtime": 1785582859.580508,
+    "seen": 1788642916.7600965,
+    "ast_hash": "8c00d58e7c81f37f87fa377eae91097a",
+    "semantic_hash": ""
+  },
+  "examples/allen_cahn.py": {
+    "mtime": 1785583222.364471,
+    "seen": 1788642916.7601008,
+    "ast_hash": "04c2e6b2fa9cabfb319d6086eb869793",
+    "semantic_hash": ""
+  },
+  "examples/bratu.py": {
+    "mtime": 1784170522.6817296,
+    "seen": 1788642916.760103,
+    "ast_hash": "2f3c814b3b812dd2e026cb29c0fc872f",
+    "semantic_hash": ""
+  },
+  "examples/bratu_2d.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601044,
+    "ast_hash": "7312002ca2f746c26b377bfb0cf22ee9",
+    "semantic_hash": ""
+  },
+  "examples/bratu_matrixfree.py": {
+    "mtime": 1785555522.1099207,
+    "seen": 1788642916.760106,
+    "ast_hash": "5721ad217b0b42d8f8fc4a1b0fa4a210",
+    "semantic_hash": ""
+  },
+  "examples/cstr.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601075,
+    "ast_hash": "0d35d2203f711412ee974a610111a7ea",
+    "semantic_hash": ""
+  },
+  "examples/cstr_sensitivity.py": {
+    "mtime": 1784191888.5609846,
+    "seen": 1788642916.760109,
+    "ast_hash": "d1da53e203c65c839afa4385d21fa974",
+    "semantic_hash": ""
+  },
+  "examples/cubic_fold.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601104,
+    "ast_hash": "7b1a8c93ffbc99ba4b9582adeb9b938b",
+    "semantic_hash": ""
+  },
+  "examples/cusp.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601116,
+    "ast_hash": "7af74f821b6811d528f225b312128617",
+    "semantic_hash": ""
+  },
+  "examples/lorenz.py": {
+    "mtime": 1785582865.6045074,
+    "seen": 1788642916.7601132,
+    "ast_hash": "8d874d75ab7eea2b0588f6062bb7ae57",
+    "semantic_hash": ""
+  },
+  "examples/predator_prey.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601144,
+    "ast_hash": "9ebaecbc7976103559bf1917b57a7144",
+    "semantic_hash": ""
+  },
+  "examples/swift_hohenberg.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601159,
+    "ast_hash": "cb6ba97eafa42dd9feb3c5c05ad3e19a",
+    "semantic_hash": ""
+  },
+  "kellax/__init__.py": {
+    "mtime": 1785589179.1002245,
+    "seen": 1788642916.7601173,
+    "ast_hash": "e77836050b0b5c036ea05bc096d6c976",
+    "semantic_hash": ""
+  },
+  "kellax/_krylov.py": {
+    "mtime": 1785577791.461545,
+    "seen": 1788642916.7601187,
+    "ast_hash": "5e018d85897a6b6aedcc764fdbb988ed",
+    "semantic_hash": ""
+  },
+  "kellax/analysis.py": {
+    "mtime": 1784191535.4994955,
+    "seen": 1788642916.7601202,
+    "ast_hash": "2f9a0c6c14716377bb0382a425cfe142",
+    "semantic_hash": ""
+  },
+  "kellax/bordered.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601213,
+    "ast_hash": "8ccad067f6892544e413dc0603459ed1",
+    "semantic_hash": ""
+  },
+  "kellax/branching.py": {
+    "mtime": 1784191608.2088904,
+    "seen": 1788642916.7601225,
+    "ast_hash": "a8b527d5e5910aa9a9741adc97526c6e",
+    "semantic_hash": ""
+  },
+  "kellax/deflation.py": {
+    "mtime": 1784191551.9598112,
+    "seen": 1788642916.7601242,
+    "ast_hash": "08368b76476a24dafd7e4189f475f475",
+    "semantic_hash": ""
+  },
+  "kellax/fixedpoint.py": {
+    "mtime": 1785578174.95739,
+    "seen": 1788642916.7601254,
+    "ast_hash": "554feadcc68dbeab97081a5af5831524",
+    "semantic_hash": ""
+  },
+  "kellax/folds.py": {
+    "mtime": 1784170522.6857295,
+    "seen": 1788642916.7601268,
+    "ast_hash": "c5743c831ae6d6fa5bd3e22320b3354c",
+    "semantic_hash": ""
+  },
+  "kellax/hessian.py": {
+    "mtime": 1785578174.95739,
+    "seen": 1788642916.7601283,
+    "ast_hash": "bb5642ca1b1d2eebf273f27155c689dc",
+    "semantic_hash": ""
+  },
+  "kellax/hopf.py": {
+    "mtime": 1784191572.716209,
+    "seen": 1788642916.7601295,
+    "ast_hash": "7e707092cb2070ef300fea168bd8b5d2",
+    "semantic_hash": ""
+  },
+  "kellax/implicit.py": {
+    "mtime": 1785582964.8964972,
+    "seen": 1788642916.7601311,
+    "ast_hash": "50c50bcb63e1d15728bb110c7673bad1",
+    "semantic_hash": ""
+  },
+  "kellax/keller.py": {
+    "mtime": 1785555516.1259208,
+    "seen": 1788642916.7601323,
+    "ast_hash": "261744b0ae8258162085e06269620eb5",
+    "semantic_hash": ""
+  },
+  "kellax/matrixfree.py": {
+    "mtime": 1785577791.461545,
+    "seen": 1788642916.760134,
+    "ast_hash": "fd53f102f908d79f4d9715cc0f18b495",
+    "semantic_hash": ""
+  },
+  "kellax/newton_krylov.py": {
+    "mtime": 1785589235.1682243,
+    "seen": 1788642916.760135,
+    "ast_hash": "bd8fa41c3bddd65198f48eb84b4ff994",
+    "semantic_hash": ""
+  },
+  "kellax/sensitivity.py": {
+    "mtime": 1784191587.7084968,
+    "seen": 1788642916.7601364,
+    "ast_hash": "8c860ddb1a7782a2e51e82267ff59196",
+    "semantic_hash": ""
+  },
+  "pyproject.toml": {
+    "mtime": 1785555503.997921,
+    "seen": 1788642916.7601378,
+    "ast_hash": "6ac7f88b6e0cefc3d20da4e45de479fe",
+    "semantic_hash": ""
+  },
+  "tests/test_bifurcations.py": {
+    "mtime": 1784191861.1406417,
+    "seen": 1788642916.7601392,
+    "ast_hash": "50e3ae229926cccc30e5e0c0cbb92257",
+    "semantic_hash": ""
+  },
+  "tests/test_kellax.py": {
+    "mtime": 1784434356.0480072,
+    "seen": 1788642916.7601407,
+    "ast_hash": "17a3e0fbdca7b2c0fad4f04a92d683ad",
+    "semantic_hash": ""
+  },
+  "tests/test_solvers.py": {
+    "mtime": 1784776003.3263612,
+    "seen": 1788642916.7601418,
+    "ast_hash": "f5c12a8b15b555d7afb9d5d42a58095c",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1785583381.2364564,
+    "seen": 1788642916.760143,
+    "ast_hash": "89788cc82732a0c0a7cc8c7264c5a17f",
+    "semantic_hash": ""
+  },
+  ".github/workflows/draft-pdf.yml": {
+    "mtime": 1784311550.1675622,
+    "seen": 1788642916.7601447,
+    "ast_hash": "f88ea4713dc4660d8236368ef6f55ccd",
+    "semantic_hash": ""
+  },
+  "CHANGELOG.md": {
+    "mtime": 1785583413.168454,
+    "seen": 1788642916.760146,
+    "ast_hash": "275da10e1c5e817aa756cec0e7edc545",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1785583388.6684558,
+    "seen": 1788642916.7601476,
+    "ast_hash": "35af407ff3202101c19880811f3dcc50",
+    "semantic_hash": ""
+  },
+  "TUTORIAL.md": {
+    "mtime": 1785583394.6244555,
+    "seen": 1788642916.7601488,
+    "ast_hash": "1dea86ca3bb56288261ffa94c6bd80ff",
+    "semantic_hash": ""
+  },
+  "book/01-the-fold.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.76015,
+    "ast_hash": "3df402fcb2b7643f3a90b2d3cfbd29bb",
+    "semantic_hash": ""
+  },
+  "book/02-the-cusp.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.7601514,
+    "ast_hash": "a99c8cf0aac5f5808fb2505644538109",
+    "semantic_hash": ""
+  },
+  "book/03-bratu.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.7601526,
+    "ast_hash": "a394adf6b63ba17f6c99497f260af54c",
+    "semantic_hash": ""
+  },
+  "book/04-matrix-free.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.760154,
+    "ast_hash": "cde572965a0ea84c99e793f91208ec16",
+    "semantic_hash": ""
+  },
+  "book/05-snaking.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.7601554,
+    "ast_hash": "61919a4806f9dbccb8f32c2b37d337ea",
+    "semantic_hash": ""
+  },
+  "book/06-cstr.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.7601566,
+    "ast_hash": "2a10bf5bf061cb35c9a50443fd7a0ace",
+    "semantic_hash": ""
+  },
+  "book/07-predator-prey.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.760158,
+    "ast_hash": "b6e95f6869d208cc03c02535cd39bbf5",
+    "semantic_hash": ""
+  },
+  "book/08-bratu-2d.md": {
+    "mtime": 1784426718.9452043,
+    "seen": 1788642916.760161,
+    "ast_hash": "a62788dad6e1dd15dc5c5e4e1129396e",
+    "semantic_hash": ""
+  },
+  "book/09-differentiable.md": {
+    "mtime": 1785583354.488458,
+    "seen": 1788642916.7601626,
+    "ast_hash": "563ee869c64282a4982dd783541ea574",
+    "semantic_hash": ""
+  },
+  "book/10-lorenz.md": {
+    "mtime": 1785583293.9404638,
+    "seen": 1788642916.7601638,
+    "ast_hash": "a1f17c868a037735e43391b9f7498ee9",
+    "semantic_hash": ""
+  },
+  "book/11-inner-solvers.md": {
+    "mtime": 1785583331.61646,
+    "seen": 1788642916.7601652,
+    "ast_hash": "f9d685139cffa030ea6024414d995ad5",
+    "semantic_hash": ""
+  },
+  "book/README.md": {
+    "mtime": 1785583909.5404012,
+    "seen": 1788642916.7601664,
+    "ast_hash": "8843c173c7325dfd3ad05141296b1db2",
+    "semantic_hash": ""
+  },
+  "docs/index.html": {
+    "mtime": 1785583402.7964547,
+    "seen": 1788642916.7601678,
+    "ast_hash": "814d40f0069228cdfefe45e46d64f20c",
+    "semantic_hash": ""
+  },
+  "paper/paper.md": {
+    "mtime": 1784312573.4795654,
+    "seen": 1788642916.7601693,
+    "ast_hash": "2b5b4c21fdc66b2dedc5904fa1f7b950",
+    "semantic_hash": ""
+  },
+  "figures/allen_cahn.png": {
+    "mtime": 1785583490.4804454,
+    "seen": 1788642916.7601707,
+    "ast_hash": "be9d824129d60dc797a6c9f56d37eeb8",
+    "semantic_hash": ""
+  },
+  "figures/bratu.png": {
+    "mtime": 1785583504.8844419,
+    "seen": 1788642916.7601721,
+    "ast_hash": "a238c52482365ba78d8d5e83e5a07ece",
+    "semantic_hash": ""
+  },
+  "figures/bratu_2d.png": {
+    "mtime": 1785583518.87644,
+    "seen": 1788642916.760368,
+    "ast_hash": "b894f4c3b89d2b940f59ecc9dfd520d3",
+    "semantic_hash": ""
+  },
+  "figures/bratu_matrixfree.png": {
+    "mtime": 1785583581.4884357,
+    "seen": 1788642916.7603707,
+    "ast_hash": "9753c6b51ed4f87587fda9331fcde11c",
+    "semantic_hash": ""
+  },
+  "figures/cstr.png": {
+    "mtime": 1785583587.4884355,
+    "seen": 1788642916.7603724,
+    "ast_hash": "28452aad2af73f7373595155f70a12f8",
+    "semantic_hash": ""
+  },
+  "figures/cstr_sensitivity.png": {
+    "mtime": 1785583594.8684347,
+    "seen": 1788642916.760374,
+    "ast_hash": "6e5e86131b82d74ea5a0852795507e56",
+    "semantic_hash": ""
+  },
+  "figures/cubic_fold.png": {
+    "mtime": 1785583598.3444343,
+    "seen": 1788642916.7603757,
+    "ast_hash": "1a004fe99884a286c8e1412d9d0911f3",
+    "semantic_hash": ""
+  },
+  "figures/cusp.png": {
+    "mtime": 1785583604.3564336,
+    "seen": 1788642916.7603774,
+    "ast_hash": "9d4bf89d774ff943a727fba6e2e496e9",
+    "semantic_hash": ""
+  },
+  "figures/lorenz.png": {
+    "mtime": 1785589228.7922244,
+    "seen": 1788642916.7603786,
+    "ast_hash": "60e383253eaec33e306ab1f89caae776",
+    "semantic_hash": ""
+  },
+  "figures/predator_prey.png": {
+    "mtime": 1785583616.820431,
+    "seen": 1788642916.7603803,
+    "ast_hash": "5c08999e6a1028f83b77e492856ed84f",
+    "semantic_hash": ""
+  },
+  "figures/swift_hohenberg.png": {
+    "mtime": 1785583754.0204172,
+    "seen": 1788642916.7603815,
+    "ast_hash": "75bca2b75679772e27f917e27ee3001d",
+    "semantic_hash": ""
+  }
+}
