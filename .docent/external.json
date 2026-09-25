@@ -1,6 +1,6 @@
 {
  "about": "internal: packages that resolve to a checkout under the configured roots; each carries the path to that checkout, its graph and manifest, and the commit it was at when this file was written. Hop there for anything inside it, and run `docent check <path>` first. third_party: never graphed. unresolved: looked internal but no unique checkout was found.",
- "generated_at": "2026-09-06T00:21:17+0100",
+ "generated_at": "2026-09-06T23:14:33+0100",
  "internal": {},
  "repo": "kellax",
  "third_party": {

@@ -1,8 +1,6 @@
 {
- "built_at": "2026-09-06T00:21:17+0100",
- "dirty_files": [
-  ".graphifyignore"
- ],
+ "built_at": "2026-09-06T23:14:33+0100",
+ "dirty_files": [],
  "docent": "0.1.0",
  "engine": {
   "name": "graphify",
@@ -12,8 +10,7 @@
   ".gitattributes": "d1580533de3f8a648e168aa83833886a092e0e07cee9da22df8aea2c31a4e428",
   ".github/workflows/ci.yml": "c643d49def1338492d4459c6f9c4b5951213d6cc29e08d16e25bcd6837df1d77",
   ".github/workflows/draft-pdf.yml": "418f0c2aa643a11fd181c46d9cd9282500e36a3d1de69060994bfc8be041d98c",
-  ".gitignore": "4acbeac5908a7c3eae302a69e3f5b6e649a79f35aebe3515349e2444824ed8da",
-  ".graphifyignore": "86b6e30a19f30e57958380220017780591ce6dc66234b8a0a8615fa814cbc088",
+  ".gitignore": "644dfc215ac38d11ec3686118cb45947e15d05e693b61687b107e11515dcc29a",
   "CHANGELOG.md": "0321374d96de55b94093d4b06241a1766af932175c26c46125cbb6580dbd9943",
   "CITATION.cff": "a3cdcdfc8e5655aa5c0177b89a22a02fd1da1a6f696b2b9a2e656875f1ebb513",
   "LICENSE": "fd223bc4ba835d38f1789c46148f8d26fc108064e6ae61b7152be0176eb103e5",
@@ -94,7 +91,7 @@
    "uses": 1
   }
  },
- "head": "2293f0a8b01d71d5a0afe5e3fc4db5932d0a6fca",
+ "head": "83708849ea3cfdd53b57d855d41aaf84e02bbf77",
  "packages": [
   "kellax"
  ],
